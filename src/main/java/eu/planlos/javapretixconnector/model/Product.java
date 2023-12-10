@@ -18,13 +18,13 @@ public final class Product {
     @NotNull
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "id_value", column = @Column(name = "pretix_id"))
+            @AttributeOverride(name = "idValue", column = @Column(name = "pretix_id"))
     })
     private PretixId pretixId;
 
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "id_value", column = @Column(name = "pretix_variation_id"))
+            @AttributeOverride(name = "idValue", column = @Column(name = "pretix_variation_id"))
     })
     private PretixId pretixVariationId;
 

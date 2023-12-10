@@ -13,6 +13,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public final class PretixId {
+
     private final Long idValue;
 
     public PretixId(@NotNull Long idValue) {
