@@ -61,6 +61,7 @@ class PretixWebhookControllerIT extends PretixTestDataUtility {
                         .content(hookJson))
                 .andExpect(status().isOk())
                 .andReturn();
+
         //TODO 404 not leading to error here. This acceptable? 500 from server should result in error...
     }
 
