@@ -1,22 +1,22 @@
 package eu.planlos.javapretixconnector.service;
 
 import eu.planlos.javapretixconnector.PretixTestDataUtility;
+import eu.planlos.javapretixconnector.TestContextConfiguration;
 import eu.planlos.javapretixconnector.model.PretixQnaFilter;
 import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterUpdateDTO;
 import eu.planlos.javapretixconnector.repository.PretixQnaFilterRepository;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
 
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
 @DataJpaTest
+@ContextConfiguration(classes = TestContextConfiguration.class)
 public class PretixEventFilterServiceIT extends PretixTestDataUtility {
 
     @Autowired

@@ -2,16 +2,16 @@ package eu.planlos.javapretixconnector.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.javapretixconnector.PretixTestDataUtility;
+import eu.planlos.javapretixconnector.TestContextConfiguration;
 import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -28,8 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Tutorial for a lot of the functions here
  * https://www.baeldung.com/integration-testing-in-spring
  */
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
+@ContextConfiguration(classes = { TestContextConfiguration.class })
 class PretixWebhookControllerIT extends PretixTestDataUtility {
 
     @Autowired

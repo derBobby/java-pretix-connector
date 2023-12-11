@@ -3,19 +3,13 @@ package eu.planlos.javapretixconnector;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.javapretixconnector.config.PretixApiConfig;
 import eu.planlos.javapretixconnector.config.PretixFeatureConfig;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
 import java.util.Collections;
 
 @TestConfiguration
-class TestContextConfiguration {
-
-    @Bean
-    public IPretixWebHookHandler libraryInterface() {
-        return Mockito.mock(IPretixWebHookHandler.class);
-    }
+public class TestContextConfiguration {
 
     @Bean
     public ObjectMapper objectMapper() {

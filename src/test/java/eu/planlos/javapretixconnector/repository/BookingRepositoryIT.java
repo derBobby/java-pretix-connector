@@ -1,12 +1,12 @@
 package eu.planlos.javapretixconnector.repository;
 
+import eu.planlos.javapretixconnector.TestContextConfiguration;
 import eu.planlos.javapretixconnector.model.Booking;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(SpringExtension.class)
 @DataJpaTest
+@ContextConfiguration(classes = TestContextConfiguration.class)
 class BookingRepositoryIT {
 
     @Autowired
