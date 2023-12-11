@@ -1,9 +1,9 @@
 package eu.planlos.javapretixconnector.controller;
 
-import eu.planlos.javapretixconnector.common.audit.AuditService;
 import eu.planlos.javapretixconnector.IPretixWebHookHandler;
 import eu.planlos.javapretixconnector.model.dto.PretixSupportedActions;
 import eu.planlos.javapretixconnector.model.dto.WebHookDTO;
+import eu.planlos.javapretixconnector.model.dto.WebHookResult;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping(PretixWebhookController.URL_WEBHOOK)
 @Slf4j
@@ -21,11 +19,9 @@ public class PretixWebhookController {
 
     public static final String URL_WEBHOOK = "/api/v1/webhook";
 
-    private final AuditService webHookAuditService;
     private final IPretixWebHookHandler webHookHandler;
 
-    public PretixWebhookController(AuditService webHookAuditService, IPretixWebHookHandler webHookHandler) {
-        this.webHookAuditService = webHookAuditService;
+    public PretixWebhookController(IPretixWebHookHandler webHookHandler) {
         this.webHookHandler = webHookHandler;
     }
 
@@ -33,36 +29,24 @@ public class PretixWebhookController {
     public ResponseEntity<String> webHook(@Valid @RequestBody WebHookDTO hook) {
 
         log.info("Incoming webhook={}", hook);
-        webHookAuditService.log(orderApprovalString(hook));
 
-        PretixSupportedActions hookActionEnum = getAction(hook);
-        String hookAction = hook.action();
-        String hookEvent = hook.event();
-        String hookCode = hook.code();
+        try {
+            WebHookResult webHookResult = webHookHandler.handleWebhook(getAction(hook), hook.event(), hook.code());
+            String message = webHookResult.message();
+            log.info("Webhook result: successful={} | message={}", webHookResult.successful(), message);
 
-        if (hookActionEnum.equals(PretixSupportedActions.ORDER_NEED_APPROVAL)) {
-            webHookHandler.handleApprovalNotification(hookAction, hookEvent, hookCode);
-            return ResponseEntity.noContent().build();
+            return webHookResult.successful()
+                    ? ResponseEntity.ok().body(String.format("WebHook has been processed: %s", message))
+                    : ResponseEntity.badRequest().body(String.format("Error processing Webhook: %s", message));
+
+        } catch (Exception e) {
+            log.info("Webhook threw exception: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(String.format("Error processing Webhook: %s", e.getMessage()));
         }
-
-        if (hookActionEnum.equals(PretixSupportedActions.ORDER_APPROVED)) {
-            Optional<String> optionalMessage = webHookHandler.handleUserCreation(hookAction, hookEvent, hookCode);
-            return optionalMessage
-                    .map(s -> ResponseEntity.ok().body(s))
-                    .orElseGet(
-                            () -> ResponseEntity.ok().body("WebHook is ignored, no filter matched")
-                    );
-        }
-
-        throw new IllegalArgumentException("We should not reach this point.");
     }
 
     private PretixSupportedActions getAction(WebHookDTO hook) {
         log.debug("Looking up Enum for {}", hook.action());
         return PretixSupportedActions.getEnumByAction(hook.action());
-    }
-
-    private String orderApprovalString(WebHookDTO hook) {
-        return String.format("Hook=%s reports order approval event for order=%s", hook.notification_id(), hook.code());
     }
 }

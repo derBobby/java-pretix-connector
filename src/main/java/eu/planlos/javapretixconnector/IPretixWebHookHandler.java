@@ -1,9 +1,8 @@
 package eu.planlos.javapretixconnector;
 
-import java.util.Optional;
+import eu.planlos.javapretixconnector.model.dto.PretixSupportedActions;
+import eu.planlos.javapretixconnector.model.dto.WebHookResult;
 
 public interface IPretixWebHookHandler {
-    void handleApprovalNotification(String action, String event, String code);
-
-    Optional<String> handleUserCreation(String action, String event, String code);
+    WebHookResult handleWebhook(PretixSupportedActions action, String event, String code);
 }

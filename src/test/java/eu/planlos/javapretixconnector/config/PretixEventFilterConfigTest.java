@@ -1,6 +1,5 @@
 package eu.planlos.javapretixconnector.config;
 
-import eu.planlos.javapretixconnector.PretixTestDataUtility;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -8,7 +7,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class PretixEventFilterConfigTest extends PretixTestDataUtility {
+class PretixEventFilterConfigTest {
 
     @Test
     public void isConfiguredByPropertiesFile_returnsAppropriate() {

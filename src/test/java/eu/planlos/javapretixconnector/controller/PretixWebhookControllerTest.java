@@ -2,10 +2,9 @@ package eu.planlos.javapretixconnector.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.planlos.javapretixconnector.common.audit.AuditService;
 import eu.planlos.javapretixconnector.IPretixWebHookHandler;
-import eu.planlos.javapretixconnector.PretixTestDataUtility;
 import eu.planlos.javapretixconnector.model.dto.WebHookDTO;
+import eu.planlos.javapretixconnector.model.dto.WebHookResult;
 import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +18,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.context.WebApplicationContext;
 
+import static eu.planlos.javapretixconnector.PretixTestDataUtility.*;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -30,16 +32,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <a href="https://reflectoring.io/spring-boot-web-controller-test/">...</a>
  */
 @WebMvcTest(controllers = PretixWebhookController.class)
-class PretixWebhookControllerTest extends PretixTestDataUtility {
+class PretixWebhookControllerTest {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
     @Autowired
     private MockMvc mockMvc;
-
-    @MockBean
-    private AuditService webHookAuditService;
 
     @MockBean
     private IPretixWebHookHandler webHookHandler;
@@ -56,34 +55,27 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
     }
 
     /*
-     * Order requires approval
+     * Correct hooks
      */
 
     @Test
-    public void orderNeedsApproval_returns200() throws Exception {
+    public void correctHookOrderNeedsApproval_isAccepted() throws Exception {
+
+        when(webHookHandler.handleWebhook(any(), any(), any()))
+                .thenReturn(new WebHookResult(true, "Test"));
+
         mockMvc.perform(
                         MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(orderNeedsApprovalHookJson()))
-                .andExpect(status().is(HttpStatus.NO_CONTENT.value()));
+                .andExpect(status().is(HttpStatus.OK.value()));
     }
-
-    /*
-     * Helper
-     */
-
-    private String orderNeedsApprovalHookJson() throws JsonProcessingException {
-        return mapper.writeValueAsString(
-                new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_NEED_APPROVAL.getAction()));
-    }
-
-
-    /*
-     * Order approved tests
-     */
 
     @Test
-    public void correctHook_returns200() throws Exception {
+    public void correctHookOrderApproved_isAccepted() throws Exception {
+
+        when(webHookHandler.handleWebhook(any(), any(), any()))
+                .thenReturn(new WebHookResult(true, "Test"));
 
         mockMvc.perform(
                 MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
@@ -91,6 +83,27 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
                         .content(orderApprovedHookJson()))
                 .andExpect(status().is(HttpStatus.OK.value()));
     }
+
+    /*
+     * WebHookResult is bad
+     */
+
+    @Test
+    public void webHookResultIsNotSuccessful_returns400() throws Exception {
+
+        when(webHookHandler.handleWebhook(any(), any(), any()))
+                .thenReturn(new WebHookResult(false, "Test"));
+
+        mockMvc.perform(
+                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(orderNeedsApprovalHookJson()))
+                .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
+    }
+
+    /*
+     * Errors
+     */
 
     @Test
     public void hookUsesInvalidAction_returns400() throws Exception {
@@ -179,6 +192,11 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
     private String orderApprovedHookJson() throws JsonProcessingException {
         return mapper.writeValueAsString(
                 new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_APPROVED.getAction()));
+    }
+
+    private String orderNeedsApprovalHookJson() throws JsonProcessingException {
+        return mapper.writeValueAsString(
+                new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_NEED_APPROVAL.getAction()));
     }
 
     private String wrongActionHookJson() throws JsonProcessingException {

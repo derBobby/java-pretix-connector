@@ -1,6 +1,5 @@
 package eu.planlos.javapretixconnector.model;
 
-import eu.planlos.javapretixconnector.PretixTestDataUtility;
 import eu.planlos.javapretixconnector.model.dto.PretixSupportedActions;
 import org.junit.jupiter.api.Test;
 
@@ -8,10 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static eu.planlos.javapretixconnector.PretixTestDataUtility.*;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static org.junit.jupiter.api.Assertions.*;
 
-class PretixQnaFilterTest extends PretixTestDataUtility {
+class PretixQnaFilterTest {
 
     @Test
     public void filtersCreatedEqually_areEqual() {

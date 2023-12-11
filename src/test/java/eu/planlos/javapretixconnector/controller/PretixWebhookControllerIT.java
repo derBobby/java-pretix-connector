@@ -1,7 +1,6 @@
 package eu.planlos.javapretixconnector.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.planlos.javapretixconnector.PretixTestDataUtility;
 import eu.planlos.javapretixconnector.TestContextConfiguration;
 import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static eu.planlos.javapretixconnector.PretixTestDataUtility.orderApprovedHook;
 import static eu.planlos.javapretixconnector.controller.PretixWebhookController.URL_WEBHOOK;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @ContextConfiguration(classes = { TestContextConfiguration.class })
-class PretixWebhookControllerIT extends PretixTestDataUtility {
+class PretixWebhookControllerIT {
 
     @Autowired
     private WebApplicationContext webApplicationContext;

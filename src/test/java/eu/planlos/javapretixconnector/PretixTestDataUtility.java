@@ -13,20 +13,20 @@ import java.util.stream.Stream;
 
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 
-public abstract class PretixTestDataUtility {
+public class PretixTestDataUtility {
 
-    public final String CORRECT_QUESTION_1 = "Question 1?";
-    public final String CORRECT_QUESTION_2 = "Question 2?";
-    public final String CORRECT_ANSWER_1 = "Answer 1!";
-    public final String CORRECT_ANSWER_2 = "Answer 2!";
-    public final String IN_CORRECT_QUESTION_1 = "Incorrect question 1?";
-    public final String IN_CORRECT_QUESTION_2 = "Incorrect question 2?";
-    public final String IN_CORRECT_ANSWER_1 = "Incorrect answer 1!";
-    public final String IN_CORRECT_ANSWER_2 = "Incorrect answer 2!";
-    public final String EVENT = "zeltlager23ma";
-    public final String CODE_NEW = "NC0DE";
-    public final String ORGANIZER = "organizer";
-    public final PretixId PRETIX_ID = new PretixId(0L);
+    public static final String CORRECT_QUESTION_1 = "Question 1?";
+    public static final String CORRECT_QUESTION_2 = "Question 2?";
+    public static final String CORRECT_ANSWER_1 = "Answer 1!";
+    public static final String CORRECT_ANSWER_2 = "Answer 2!";
+    public static final String IN_CORRECT_QUESTION_1 = "Incorrect question 1?";
+    public static final String IN_CORRECT_QUESTION_2 = "Incorrect question 2?";
+    public static final String IN_CORRECT_ANSWER_1 = "Incorrect answer 1!";
+    public static final String IN_CORRECT_ANSWER_2 = "Incorrect answer 2!";
+    public static final String EVENT = "zeltlager23ma";
+    public static final String CODE_NEW = "NC0DE";
+    public static final String ORGANIZER = "organizer";
+    public static final PretixId PRETIX_ID = new PretixId(0L);
 
     /*
      * To be filtered QnaMaps
@@ -36,7 +36,7 @@ public abstract class PretixTestDataUtility {
      * Provides map matching filter
      * @return map containing QnA
      */
-    protected Map<Question, Answer> correctQnaMap() {
+    public static Map<Question, Answer> correctQnaMap() {
         return Map.of(
                 new Question(PRETIX_ID, CORRECT_QUESTION_1),    new Answer(PRETIX_ID, CORRECT_ANSWER_1),
                 new Question(PRETIX_ID, CORRECT_QUESTION_2),    new Answer(PRETIX_ID, CORRECT_ANSWER_2));
@@ -47,7 +47,7 @@ public abstract class PretixTestDataUtility {
      * Provides map with missing question compared to the filter
      * @return map containing QnA
      */
-    protected Map<Question, Answer> missingQuestionQnaMap() {
+    public static Map<Question, Answer> missingQuestionQnaMap() {
         return Map.of(
                 new Question(PRETIX_ID, CORRECT_QUESTION_1),    new Answer(PRETIX_ID, CORRECT_ANSWER_1));
     }
@@ -56,7 +56,7 @@ public abstract class PretixTestDataUtility {
      * Provides map with additional question compared to the filter
      * @return map containing QnA
      */
-    protected Map<Question, Answer> additionalQuestionsQnaMap() {
+    public static Map<Question, Answer> additionalQuestionsQnaMap() {
         Map<Question, Answer> map = correctQnaMap();    // Basic
         Map<Question, Answer> additionalMap = Map.of(   // + Additional
                 new Question(PRETIX_ID, "Additional?"),     new Answer(PRETIX_ID, "Additional!"));
@@ -70,7 +70,7 @@ public abstract class PretixTestDataUtility {
      * Provides map missing all questions compared to the filter
      * @return map containing QnA
      */
-    protected Map<Question, Answer> allQuestionsMissingQnaMap() {
+    public static Map<Question, Answer> allQuestionsMissingQnaMap() {
         return Map.of(
                 new Question(PRETIX_ID, IN_CORRECT_QUESTION_1), new Answer(PRETIX_ID, CORRECT_ANSWER_1),
                 new Question(PRETIX_ID, IN_CORRECT_QUESTION_2), new Answer(PRETIX_ID, CORRECT_ANSWER_2));
@@ -80,7 +80,7 @@ public abstract class PretixTestDataUtility {
      * Provides map matching all questions but not all answers compared to filter
      * @return map containing QnA
      */
-    protected Map<Question, Answer> notAllAnswersCorrectMap() {
+    public static Map<Question, Answer> notAllAnswersCorrectMap() {
         return Map.of(
                 new Question(PRETIX_ID, CORRECT_QUESTION_1),    new Answer(PRETIX_ID, CORRECT_ANSWER_1),
                 new Question(PRETIX_ID, CORRECT_QUESTION_2),    new Answer(PRETIX_ID, IN_CORRECT_ANSWER_2));
@@ -90,7 +90,7 @@ public abstract class PretixTestDataUtility {
      * Provides map matching all questions but no answers
      * @return map containing QnA
      */
-    protected Map<Question, Answer> noAnswerCorrectMap() {
+    public static Map<Question, Answer> noAnswerCorrectMap() {
         return Map.of(
                 new Question(PRETIX_ID, CORRECT_QUESTION_1),    new Answer(PRETIX_ID, IN_CORRECT_ANSWER_1),
                 new Question(PRETIX_ID, CORRECT_QUESTION_2),    new Answer(PRETIX_ID, IN_CORRECT_ANSWER_2));
@@ -100,7 +100,7 @@ public abstract class PretixTestDataUtility {
      * Filters
      */
 
-    protected PretixQnaFilter filterOK() {
+    public static PretixQnaFilter filterOK() {
         return new PretixQnaFilter(
                 ORDER_APPROVED.getAction(),
                 EVENT,
@@ -115,7 +115,7 @@ public abstract class PretixTestDataUtility {
      * Must correspont to filterOK()
      * @return filter update dto
      */
-    protected PretixQnaFilterUpdateDTO updateFilterOK(Long id) {
+    public static PretixQnaFilterUpdateDTO updateFilterOK(Long id) {
         return new PretixQnaFilterUpdateDTO(
                 id,
                 ORDER_APPROVED.getAction(),
@@ -127,7 +127,7 @@ public abstract class PretixTestDataUtility {
                         List.of(CORRECT_ANSWER_2)));
     }
 
-    protected PretixQnaFilter filterWithDuplicateAnswer() {
+    public static PretixQnaFilter filterWithDuplicateAnswer() {
         return new PretixQnaFilter(
                 ORDER_APPROVED.getAction(),
                 EVENT,
@@ -136,7 +136,7 @@ public abstract class PretixTestDataUtility {
                         List.of(CORRECT_ANSWER_1, CORRECT_ANSWER_1)));
     }
 
-    protected PretixQnaFilter filterWithInvalidAction() {
+    public static PretixQnaFilter filterWithInvalidAction() {
         return new PretixQnaFilter(
                 "invalid.action",
                 EVENT,
@@ -145,7 +145,7 @@ public abstract class PretixTestDataUtility {
                         List.of(CORRECT_ANSWER_1, CORRECT_ANSWER_2)));
     }
 
-    protected List<PretixQnaFilter> filterOKList() {
+    public static List<PretixQnaFilter> filterOKList() {
         return List.of(
                 new PretixQnaFilter(
                         ORDER_APPROVED.getAction(),
@@ -159,7 +159,7 @@ public abstract class PretixTestDataUtility {
      * Webhooks
      */
 
-    protected WebHookDTO orderApprovedHook() {
+    public static WebHookDTO orderApprovedHook() {
         return new WebHookDTO(0L, ORGANIZER, EVENT, CODE_NEW, ORDER_APPROVED.getAction());
     }
 
@@ -167,7 +167,7 @@ public abstract class PretixTestDataUtility {
      * Booking
      */
 
-    protected Booking ticketBooking() {
+    public static Booking ticketBooking() {
         return new Booking(
                 EVENT,
                 CODE_NEW,
@@ -178,7 +178,7 @@ public abstract class PretixTestDataUtility {
                 ticketPositionList());
     }
 
-    protected Booking addonBooking() {
+    public static Booking addonBooking() {
         return new Booking(
                 EVENT,
                 CODE_NEW,
@@ -189,7 +189,7 @@ public abstract class PretixTestDataUtility {
                 addonPositionList());
     }
 
-    protected Booking noPositionsBooking() {
+    public static Booking noPositionsBooking() {
         return new Booking(
                 EVENT,
                 CODE_NEW,
@@ -200,27 +200,27 @@ public abstract class PretixTestDataUtility {
                 Collections.emptyList());
     }
 
-    private List<Position> ticketPositionList() {
+    private static List<Position> ticketPositionList() {
         return List.of(new Position(ticketProduct(), correctQnaMap()));
     }
 
-    private List<Position> addonPositionList() {
+    private static List<Position> addonPositionList() {
         return List.of(new Position(addonProduct(), correctQnaMap()));
     }
 
-    private Product ticketProduct() {
+    private static Product ticketProduct() {
         return new Product(PRETIX_ID, "ticket", ticketProductType());
     }
 
-    private Product addonProduct() {
+    private static Product addonProduct() {
         return new Product(PRETIX_ID, "probably a hoodie", addonProductType());
     }
 
-    private ProductType ticketProductType() {
+    private static ProductType ticketProductType() {
         return new ProductType(PRETIX_ID, false, "Some kind of ticket");
     }
 
-    private ProductType addonProductType() {
+    private static ProductType addonProductType() {
         return new ProductType(PRETIX_ID, true, "Not a ticket, probably a hoodie");
     }
 }
