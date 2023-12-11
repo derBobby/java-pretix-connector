@@ -6,18 +6,23 @@ import eu.planlos.javapretixconnector.common.audit.AuditService;
 import eu.planlos.javapretixconnector.IPretixWebHookHandler;
 import eu.planlos.javapretixconnector.PretixTestDataUtility;
 import eu.planlos.javapretixconnector.model.dto.WebHookDTO;
+import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.context.WebApplicationContext;
 
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -26,6 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(controllers = PretixWebhookController.class)
 class PretixWebhookControllerTest extends PretixTestDataUtility {
+
+    @Autowired
+    private WebApplicationContext webApplicationContext;
 
     @Autowired
     private MockMvc mockMvc;
@@ -37,6 +45,15 @@ class PretixWebhookControllerTest extends PretixTestDataUtility {
     private IPretixWebHookHandler webHookHandler;
 
     ObjectMapper mapper = new ObjectMapper();
+
+    @Test
+    public void givenWac_providesController() {
+        ServletContext servletContext = webApplicationContext.getServletContext();
+
+        assertNotNull(servletContext);
+        assertTrue(servletContext instanceof MockServletContext);
+        assertTrue(webApplicationContext.containsBean("pretixWebhookController"));
+    }
 
     /*
      * Order requires approval

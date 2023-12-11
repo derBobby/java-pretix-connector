@@ -44,12 +44,12 @@ class PretixWebhookControllerIT extends PretixTestDataUtility {
     }
 
     @Test
-    public void givenWac_whenServletContext_thenItProvidesGreetController() {
+    public void givenWac_providesController() {
         ServletContext servletContext = webApplicationContext.getServletContext();
 
         assertNotNull(servletContext);
         assertTrue(servletContext instanceof MockServletContext);
-        assertNotNull(webApplicationContext.getBean("pretixWebhookController"));
+        assertTrue(webApplicationContext.containsBean("pretixWebhookController"));
     }
 
     @Test
@@ -120,5 +120,4 @@ class PretixWebhookControllerIT extends PretixTestDataUtility {
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.message").value("Hello World!!!"));
     }
-
 }
