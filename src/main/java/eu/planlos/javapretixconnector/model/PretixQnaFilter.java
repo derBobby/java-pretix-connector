@@ -1,7 +1,6 @@
 package eu.planlos.javapretixconnector.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import eu.planlos.javautilities.GermanStringsUtility;
 import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterCreateDTO;
 import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterUpdateDTO;
 import eu.planlos.javapretixconnector.model.validation.ValidAction;
@@ -14,7 +13,8 @@ import lombok.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import static eu.planlos.javapretixconnector.model.QnaMapUtility.extractQnaMap;
 
 @Entity
 @EqualsAndHashCode
@@ -80,13 +80,6 @@ public final class PretixQnaFilter {
             String givenAnswer = extractedQnaMap.get(filterQuestion);
             return givenAnswer != null && filterAnswerList.contains(givenAnswer);
         });
-    }
-
-    private Map<String, String> extractQnaMap(Map<Question, Answer> qnaMap) {
-        return qnaMap.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> GermanStringsUtility.normalizeGermanCharacters(entry.getKey().getText()),
-                        entry -> GermanStringsUtility.normalizeGermanCharacters(entry.getValue().getText())));
     }
 
     public PretixQnaFilter(PretixQnaFilterCreateDTO dto) {
