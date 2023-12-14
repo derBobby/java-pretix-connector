@@ -7,8 +7,10 @@ import java.util.Arrays;
 
 @Getter
 public enum PretixSupportedActions {
+    ORDER_PLACED("pretix.event.order.placed"),
+    ORDER_NEED_APPROVAL("pretix.event.order.placed.require_approval"),
     ORDER_APPROVED("pretix.event.order.approved"),
-    ORDER_NEED_APPROVAL("pretix.event.order.placed.require_approval");
+    ORDER_CANCELED("pretix.event.order.canceled");
 
     private final String action;
 
