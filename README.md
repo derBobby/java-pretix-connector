@@ -23,15 +23,15 @@ Add Configuration class
 ```java
 @Configuration
 @ComponentScan(basePackages = "eu.planlos.javapretixconnector")
-@EnableJpaRepositories(basePackages = {"eu.planlos.javapretixconnector"})
-@EntityScan(basePackages = {"eu.planlos.javapretixconnector"})
 public class PretixConfig {}
 ```
 
-Add `@ComponentScan` and `@EnableJpaRepositories` for your packages:
-```
-@EntityScan(basePackages = {"com.package.your"})
-@EnableJpaRepositories(basePackages = {"com.package.your"})
+Add Configuration class with `@EntityScan` and `@EnableJpaRepositories` for both, your package and the library:
+```java
+@Configuration
+@EnableJpaRepositories(basePackages = {"com.package.your", "eu.planlos.javapretixconnector"})
+@EntityScan(basePackages = {"com.package.your", "eu.planlos.javapretixconnector"})
+public class DataConfig {}
 ```
 
 ## Status
