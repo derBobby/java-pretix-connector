@@ -15,20 +15,9 @@ public class PretixWebClientConfig {
     @Qualifier("PretixWebClient")
     public static WebClient configurePretixWebClient(PretixApiConfig apiConfig) {
 
-        String address = apiConfig.address();
-        String token = apiConfig.token();
-        String organizer = apiConfig.organizer();
-
-        if (apiConfig.inactive()) {
-            address = "mocked-address";
-            token = "mocked-token";
-            organizer = "mocked-organizer";
-        }
-        String finalToken = token;
-
         log.info("Creating WebClient using:");
-        log.info("- Pretix address: {}", address);
-        log.info("- Pretix organizer: {}", organizer);
+        log.info("- Pretix address: {}", apiConfig.address());
+        log.info("- Pretix organizer: {}", apiConfig.organizer());
 
         return WebClient.builder()
                 .baseUrl(apiConfig.address())
@@ -36,7 +25,7 @@ public class PretixWebClientConfig {
 //                .filter(WebClientRequestFilter.logRequest())
 //                .filter(WebClientResponseFilter.logResponse())
 //                .filter(WebClientResponseFilter.handleError())
-                .defaultHeaders(httpHeaders -> httpHeaders.set(HttpHeaders.AUTHORIZATION, String.join("", "Token ", finalToken)))
+                .defaultHeaders(httpHeaders -> httpHeaders.set(HttpHeaders.AUTHORIZATION, String.join("", "Token ", apiConfig.token())))
                 .build();
     }
 }
