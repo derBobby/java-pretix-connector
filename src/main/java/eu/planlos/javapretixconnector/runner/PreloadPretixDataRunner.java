@@ -36,6 +36,7 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments arg0) {
+        //TODO Preload all, not only configured
         if(pretixApiConfig.eventList() != null) {
             pretixApiConfig.eventList().forEach(this::preload);
         }

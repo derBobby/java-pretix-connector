@@ -57,6 +57,10 @@ public class PretixBookingService {
         bookingRepository.saveAll(bookingList);
     }
 
+    public String getOrderUrl(String event, String orderCode) {
+        return pretixApiOrderService.getEventUrl(event, orderCode);
+    }
+
     private Booking convert(String event, OrderDTO orderDTO) {
 
         List<Position> positionList = new ArrayList<>();
