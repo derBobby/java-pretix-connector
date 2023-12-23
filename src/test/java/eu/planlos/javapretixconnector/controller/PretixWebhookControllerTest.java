@@ -61,7 +61,7 @@ class PretixWebhookControllerTest {
     @Test
     public void correctHookOrderNeedsApproval_isAccepted() throws Exception {
 
-        when(webHookHandler.handleWebhook(any(), any(), any()))
+        when(webHookHandler.handleWebhook(any(), any(), any(), any()))
                 .thenReturn(new WebHookResult(true, "Test"));
 
         mockMvc.perform(
@@ -74,7 +74,7 @@ class PretixWebhookControllerTest {
     @Test
     public void correctHookOrderApproved_isAccepted() throws Exception {
 
-        when(webHookHandler.handleWebhook(any(), any(), any()))
+        when(webHookHandler.handleWebhook(any(), any(), any(), any()))
                 .thenReturn(new WebHookResult(true, "Test"));
 
         mockMvc.perform(
@@ -91,7 +91,7 @@ class PretixWebhookControllerTest {
     @Test
     public void webHookResultIsNotSuccessful_returns400() throws Exception {
 
-        when(webHookHandler.handleWebhook(any(), any(), any()))
+        when(webHookHandler.handleWebhook(any(), any(), any(), any()))
                 .thenReturn(new WebHookResult(false, "Test"));
 
         mockMvc.perform(

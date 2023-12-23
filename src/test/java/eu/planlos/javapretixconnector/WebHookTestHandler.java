@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class WebHookTestHandler implements IPretixWebHookHandler {
 
     @Override
-    public WebHookResult handleWebhook(PretixSupportedActions action, String event, String code) {
+    public WebHookResult handleWebhook(String organizer, String event, String code, PretixSupportedActions action) {
         return new WebHookResult(true, "Test message");
     }
 }

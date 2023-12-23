@@ -31,7 +31,7 @@ public class PretixWebhookController {
         log.info("Incoming webhook={}", hook);
 
         try {
-            WebHookResult webHookResult = webHookHandler.handleWebhook(getAction(hook), hook.event(), hook.code());
+            WebHookResult webHookResult = webHookHandler.handleWebhook(hook.organizer(), hook.event(), hook.code(), getAction(hook));
             String message = webHookResult.message();
             log.info("Webhook result: successful={} | message={}", webHookResult.successful(), message);
 
