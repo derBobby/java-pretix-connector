@@ -99,6 +99,7 @@ public class PretixApiOrderService extends PretixApiService {
                 config.address(),
                 "/control/event/", config.organizer(),
                 "/", event,
-                "/orders/", orderCode, "/");
+                "/orders/", orderCode, "/")
+                .replace("//", "/");
     }
 }
