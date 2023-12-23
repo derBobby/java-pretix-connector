@@ -21,8 +21,7 @@ import org.springframework.web.context.WebApplicationContext;
 import static eu.planlos.javapretixconnector.PretixTestDataUtility.*;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_NEED_APPROVAL;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -50,7 +49,7 @@ class PretixWebhookControllerTest {
         ServletContext servletContext = webApplicationContext.getServletContext();
 
         assertNotNull(servletContext);
-        assertTrue(servletContext instanceof MockServletContext);
+        assertInstanceOf(MockServletContext.class, servletContext);
         assertTrue(webApplicationContext.containsBean("pretixWebhookController"));
     }
 
