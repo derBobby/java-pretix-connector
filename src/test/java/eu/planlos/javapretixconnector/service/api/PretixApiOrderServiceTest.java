@@ -25,7 +25,9 @@ class PretixApiOrderServiceTest {
         when(config.organizer()).thenReturn("organizer");
         when(config.address()).thenReturn("https://test.domain/");
 
-        String url = service.getEventUrl("event-name", "order-code");
+        String url = service
+                .getEventUrl("event-name", "order-code")
+                .replace("://", "");
 
         assertFalse(url.contains("//"));
     }

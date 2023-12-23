@@ -94,12 +94,17 @@ public class PretixApiOrderService extends PretixApiService {
     }
 
     public String getEventUrl(String event, String orderCode) {
-        return String.join(
-                "",
-                config.address(),
-                "/control/event/", config.organizer(),
-                "/", event,
-                "/orders/", orderCode, "/")
-                .replace("//", "/");
+
+        String address = config.address();
+        String organizer = config.organizer();
+
+        // Ensure address ends with a single slash
+        if (address.endsWith("/")) {
+            address = address.substring(0, address.length() - 1);
+        }
+
+        // Use String.format for better readability
+        return String.format("%s/control/event/%s/%s/orders/%s/",
+                address, organizer, event, orderCode);
     }
 }
