@@ -11,23 +11,23 @@ import static eu.planlos.javapretixconnector.PretixTestDataUtility.*;
 import static eu.planlos.javapretixconnector.model.dto.PretixSupportedActions.ORDER_APPROVED;
 import static org.junit.jupiter.api.Assertions.*;
 
-class PretixQnaFilterTest {
+class PretixEventFilterTest {
 
     @Test
     public void filtersCreatedEqually_areEqual() {
-        assertEquals(newQnaFilter(), newQnaFilter());
+        assertEquals(newFilter(), newFilter());
     }
 
     @Test
     public void filterForActionAndEvent_isRecognized() {
-        PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(ORDER_APPROVED.getAction(), EVENT, new HashMap<>());
-        assertTrue(pretixQnaFilter.isForAction(ORDER_APPROVED.getAction()));
-        assertTrue(pretixQnaFilter.isForEvent(EVENT));
+        PretixEventFilter pretixEventFilter = new PretixEventFilter(ORDER_APPROVED.getAction(), ORGANIZER, EVENT, new HashMap<>());
+        assertTrue(pretixEventFilter.isForAction(ORDER_APPROVED.getAction()));
+        assertTrue(pretixEventFilter.isForEvent(EVENT));
     }
 
     @Test
     public void filtersNotCreatedEqually_areNotEqual() {
-        assertNotEquals(newQnaFilter(), newDifferentQnaFilter());
+        assertNotEquals(newFilter(), newDifferentFilter());
     }
 
     @Test
@@ -59,16 +59,18 @@ class PretixQnaFilterTest {
      * Data helper
      */
 
-    private PretixQnaFilter newQnaFilter() {
-        return new PretixQnaFilter(
+    private PretixEventFilter newFilter() {
+        return new PretixEventFilter(
                 PretixSupportedActions.ORDER_NEED_APPROVAL.getAction(),
+                ORGANIZER,
                 EVENT,
                 Map.of("Question?", List.of("Wrong Answer!", "Answer!")));
     }
 
-    private PretixQnaFilter newDifferentQnaFilter() {
-        return new PretixQnaFilter(
+    private PretixEventFilter newDifferentFilter() {
+        return new PretixEventFilter(
                 PretixSupportedActions.ORDER_NEED_APPROVAL.getAction(),
+                ORGANIZER,
                 EVENT,
                 Map.of("Different Question?", List.of("Wrong Answer!", "Answer!")));
     }

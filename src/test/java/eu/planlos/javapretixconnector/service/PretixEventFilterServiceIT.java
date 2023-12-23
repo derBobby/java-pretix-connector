@@ -1,9 +1,9 @@
 package eu.planlos.javapretixconnector.service;
 
 import eu.planlos.javapretixconnector.TestContextConfiguration;
-import eu.planlos.javapretixconnector.model.PretixQnaFilter;
-import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterUpdateDTO;
-import eu.planlos.javapretixconnector.repository.PretixQnaFilterRepository;
+import eu.planlos.javapretixconnector.model.PretixEventFilter;
+import eu.planlos.javapretixconnector.model.dto.PretixEventFilterUpdateDTO;
+import eu.planlos.javapretixconnector.repository.PretixEventFilterRepository;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +20,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PretixEventFilterServiceIT {
 
     @Autowired
-    private PretixQnaFilterRepository pretixQnaFilterRepository;
+    private PretixEventFilterRepository pretixEventFilterRepository;
 
     private PretixEventFilterService pretixEventFilterService;
 
     @BeforeEach
     public void setUp() {
-        pretixEventFilterService = new PretixEventFilterService(pretixQnaFilterRepository, filterOKList());
+        pretixEventFilterService = new PretixEventFilterService(pretixEventFilterRepository, filterOKList());
     }
 
     /*
@@ -35,41 +35,41 @@ public class PretixEventFilterServiceIT {
 
     @Test
     public void createWithGivenId_throwsException() {
-        PretixQnaFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK(1L);
-        PretixQnaFilter updatePretixEventFilter = new PretixQnaFilter(pretixEventFilterUpdateDTO);
+        PretixEventFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK(1L);
+        PretixEventFilter updatePretixEventFilter = new PretixEventFilter(pretixEventFilterUpdateDTO);
         assertThrows(IllegalArgumentException.class, () -> pretixEventFilterService.addFilter(updatePretixEventFilter));
     }
 
     @Test
     public void createAndFindFilter_successful() {
-        PretixQnaFilter givenPretixEventFilter = filterOK();
+        PretixEventFilter givenPretixEventFilter = filterOK();
         pretixEventFilterService.addFilter(givenPretixEventFilter);
-        PretixQnaFilter databasePretixEventFilter = pretixEventFilterService.getFilter(givenPretixEventFilter.getId()).get();
+        PretixEventFilter databasePretixEventFilter = pretixEventFilterService.getFilter(givenPretixEventFilter.getId()).get();
         assertEquals(databasePretixEventFilter, givenPretixEventFilter);
     }
 
     @Test
     public void createAndDeleteFilter_successful() {
-        PretixQnaFilter pretixEventFilter = filterOK();
+        PretixEventFilter pretixEventFilter = filterOK();
         pretixEventFilterService.addFilter(pretixEventFilter);
-        pretixQnaFilterRepository.flush();
+        pretixEventFilterRepository.flush();
         assertTrue(pretixEventFilterService.getFilter(pretixEventFilter.getId()).isPresent());
 
         pretixEventFilterService.deleteFilter(pretixEventFilter.getId());
-        pretixQnaFilterRepository.flush();
+        pretixEventFilterRepository.flush();
         assertFalse(pretixEventFilterService.getFilter(pretixEventFilter.getId()).isPresent());
     }
 
     @Test
     public void createAndUpdateFilter_successfull() {
-        PretixQnaFilter originalpretixEventFilter = filterOK();
+        PretixEventFilter originalpretixEventFilter = filterOK();
         pretixEventFilterService.addFilter(originalpretixEventFilter);
-        pretixQnaFilterRepository.flush();
+        pretixEventFilterRepository.flush();
 
-        PretixQnaFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK(originalpretixEventFilter.getId());
-        PretixQnaFilter updatePretixEventFilter = new PretixQnaFilter(pretixEventFilterUpdateDTO);
+        PretixEventFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK(originalpretixEventFilter.getId());
+        PretixEventFilter updatePretixEventFilter = new PretixEventFilter(pretixEventFilterUpdateDTO);
         pretixEventFilterService.updateFilter(updatePretixEventFilter);
-        pretixQnaFilterRepository.flush();
+        pretixEventFilterRepository.flush();
 
         assertEquals(pretixEventFilterService.getFilter(originalpretixEventFilter.getId()).get(), updatePretixEventFilter);
     }
@@ -96,17 +96,17 @@ public class PretixEventFilterServiceIT {
 
     @Test
     public void ticketBooking_matchesFilter() {
-        assertFalse(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED.getAction(), ticketBooking()));
+        assertFalse(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED, ticketBooking()));
     }
 
     @Test
     public void addonBooking_doesntMatchFilter() {
-        assertTrue(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED.getAction(), addonBooking()));
+        assertTrue(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED, addonBooking()));
     }
 
     @Test
     public void noPositionBooking_doesntMatchFilter() {
-        assertTrue(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED.getAction(), noPositionsBooking()));
+        assertTrue(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED, noPositionsBooking()));
     }
 
     /*
@@ -115,32 +115,32 @@ public class PretixEventFilterServiceIT {
 
     @Test
     public void goodQnA_matchesFilter() {
-        assertTrue(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, correctQnaMap()));
+        assertTrue(pretixEventFilterService.matchesEventFilter(ORDER_APPROVED.getAction(), ORGANIZER, EVENT, correctQnaMap()));
     }
 
     @Test
     public void missingQuestionQna_doesntMatchFilter() {
-        assertFalse(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, missingQuestionQnaMap()));
+        assertFalse(pretixEventFilterService.matchesEventFilter(ORDER_APPROVED.getAction(), ORGANIZER, EVENT, missingQuestionQnaMap()));
     }
 
     @Test
     public void moreQnAThanInFilter_matchesFilter() {
-        assertTrue(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, additionalQuestionsQnaMap()));
+        assertTrue(pretixEventFilterService.matchesEventFilter(ORDER_APPROVED.getAction(), ORGANIZER, EVENT, additionalQuestionsQnaMap()));
     }
 
     @Test
     public void noQuestionAnswered_isFalse() {
-        assertFalse(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, allQuestionsMissingQnaMap()));
+        assertFalse(pretixEventFilterService.matchesEventFilter(ORDER_APPROVED.getAction(), ORGANIZER, EVENT, allQuestionsMissingQnaMap()));
     }
 
     @Test
     public void notAllAnswersCorrect_isFalse() {
-        assertFalse(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, notAllAnswersCorrectMap()));
+        assertFalse(pretixEventFilterService.matchesEventFilter(ORDER_APPROVED.getAction(), ORGANIZER, EVENT, notAllAnswersCorrectMap()));
     }
 
     @Test
     public void allAnswersWrong_isFalse() {
-        assertFalse(pretixEventFilterService.matchesQnaFilter(ORDER_APPROVED.getAction(), EVENT, noAnswerCorrectMap()));
+        assertFalse(pretixEventFilterService.matchesEventFilter(ORDER_APPROVED.getAction(), ORGANIZER, EVENT, noAnswerCorrectMap()));
     }
 
     /*
@@ -148,6 +148,6 @@ public class PretixEventFilterServiceIT {
      */
 
     private void assertFlushResultsInConstraingViolation() {
-        assertThrows(ConstraintViolationException.class, () -> pretixQnaFilterRepository.flush());
+        assertThrows(ConstraintViolationException.class, () -> pretixEventFilterRepository.flush());
     }
 }

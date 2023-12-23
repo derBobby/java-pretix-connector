@@ -28,8 +28,8 @@ class BookingRepositoryIT {
 
     @Test
     public void insertDuplicate_throwsException() {
-        Booking firstBooking = new Booking("first event", "XC0DE", "Firstname", "Lastname", "email@example.com", LocalDateTime.now(), new ArrayList<>());
-        Booking secondBooking = new Booking("second event", "XC0DE", "Firstname", "Lastname", "email@example.com", LocalDateTime.now(), new ArrayList<>());
+        Booking firstBooking = new Booking("only organizer", "first event", "XC0DE", "Firstname", "Lastname", "email@example.com", LocalDateTime.now(), new ArrayList<>());
+        Booking secondBooking = new Booking("only organizer", "second event", "XC0DE", "Firstname", "Lastname", "email@example.com", LocalDateTime.now(), new ArrayList<>());
 
         bookingRepository.saveAndFlush(firstBooking);
         assertThrows(DataIntegrityViolationException.class, () -> bookingRepository.saveAndFlush(secondBooking));

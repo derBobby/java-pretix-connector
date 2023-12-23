@@ -1,11 +1,12 @@
 package eu.planlos.javapretixconnector.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterCreateDTO;
-import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterUpdateDTO;
+import eu.planlos.javapretixconnector.model.dto.PretixEventFilterCreateDTO;
+import eu.planlos.javapretixconnector.model.dto.PretixEventFilterUpdateDTO;
 import eu.planlos.javapretixconnector.model.validation.ValidAction;
 import eu.planlos.javapretixconnector.model.validation.ValidEvent;
 import eu.planlos.javapretixconnector.model.validation.ValidFilterMap;
+import eu.planlos.javapretixconnector.model.validation.ValidOrganizer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -21,7 +22,7 @@ import static eu.planlos.javapretixconnector.model.QnaMapUtility.extractQnaMap;
 @NoArgsConstructor /* Required for ObjectMapper*/
 @AllArgsConstructor
 @ToString
-public final class PretixQnaFilter {
+public final class PretixEventFilter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,19 +34,25 @@ public final class PretixQnaFilter {
     @ValidAction
     private String action;
 
+    @JsonProperty("organizer")
+    @NotNull
+    @ValidOrganizer
+    private String organizer;
+
     @JsonProperty("event")
     @NotNull
     @ValidEvent
     private String event;
 
     @JsonProperty("qna-list")
-    @Convert(converter = PretixQnaFilterMapToStringDBConverter.class)
+    @Convert(converter = PretixEventFilterMapToStringDBConverter.class)
     @NotNull
     @ValidFilterMap
     private Map<String, List<String>> filterMap = new HashMap<>();
 
-    public PretixQnaFilter(@NotNull String action, @NotNull String event, @NotNull Map<String, List<String>> filterMap) {
+    public PretixEventFilter(@NotNull String action, @NotNull String organizer, @NotNull String event, @NotNull Map<String, List<String>> filterMap) {
         this.action = action;
+        this.organizer = organizer;
         this.event = event;
         this.filterMap.putAll(filterMap);
     }
@@ -82,11 +89,11 @@ public final class PretixQnaFilter {
         });
     }
 
-    public PretixQnaFilter(PretixQnaFilterCreateDTO dto) {
-        this(dto.action(), dto.event(), dto.filterMap());
+    public PretixEventFilter(PretixEventFilterCreateDTO dto) {
+        this(dto.action(), dto.organizer(), dto.event(), dto.filterMap());
     }
 
-    public PretixQnaFilter(PretixQnaFilterUpdateDTO dto) {
-        this(dto.id(), dto.action(), dto.event(), dto.filterMap());
+    public PretixEventFilter(PretixEventFilterUpdateDTO dto) {
+        this(dto.id(), dto.action(), dto.organizer(), dto.event(), dto.filterMap());
     }
 }

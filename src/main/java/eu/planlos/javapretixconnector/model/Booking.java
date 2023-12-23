@@ -20,6 +20,9 @@ public final class Booking {
     private Long id;
 
     @NotNull
+    private String organizer;
+
+    @NotNull
     private String event;
 
     @NotNull
@@ -44,8 +47,9 @@ public final class Booking {
     @ToString.Exclude
     private List<Position> positionList;
 
-    public Booking(@NotNull String event, @NotNull String code, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Position> positionList) {
+    public Booking(@NotNull String code, @NotNull String organizer, @NotNull String event, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Position> positionList) {
         this.code = code;
+        this.organizer = organizer;
         this.event = event;
         this.firstname = firstname;
         this.lastname = lastname;

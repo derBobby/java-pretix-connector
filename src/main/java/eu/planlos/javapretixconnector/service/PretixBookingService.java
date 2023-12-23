@@ -31,7 +31,7 @@ public class PretixBookingService {
         this.bookingRepository = bookingRepository;
     }
 
-    public Booking loadOrFetch(String event, String code) {
+    public Booking loadOrFetch(String organizer, String event, String code) {
 
         // Get from DB
         Optional<Booking> optionalBooking = bookingRepository.findByEventAndCode(event, code);
@@ -42,18 +42,18 @@ public class PretixBookingService {
         }
 
         // or fetch from Pretix
-        return fetchFromPretix(event, code);
+        return fetchFromPretix(organizer, event, code);
     }
 
-    private Booking fetchFromPretix(String event, String code) {
+    private Booking fetchFromPretix(String organizer, String event, String code) {
         OrderDTO orderDTO = pretixApiOrderService.fetchOrderFromPretix(event, code);
-        Booking booking = convert(event, orderDTO);
+        Booking booking = convert(organizer, event, orderDTO);
         return bookingRepository.save(booking);
     }
 
-    public void fetchAll(String event) {
+    public void fetchAll(String organizer, String event) {
         List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders(event);
-        List<Booking> bookingList = orderDTOList.stream().map(orderDTO -> convert(event, orderDTO)).collect(Collectors.toList());
+        List<Booking> bookingList = orderDTOList.stream().map(orderDTO -> convert(organizer, event, orderDTO)).collect(Collectors.toList());
         bookingRepository.saveAll(bookingList);
     }
 
@@ -61,7 +61,7 @@ public class PretixBookingService {
         return pretixApiOrderService.getEventUrl(event, orderCode);
     }
 
-    private Booking convert(String event, OrderDTO orderDTO) {
+    private Booking convert(String organizer, String event, OrderDTO orderDTO) {
 
         List<Position> positionList = new ArrayList<>();
 
@@ -72,6 +72,6 @@ public class PretixBookingService {
             positionList.add(new Position(product, QnAmap));
         });
 
-        return new Booking(event, orderDTO.getCode(), orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), positionList);
+        return new Booking(event, organizer, orderDTO.getCode(), orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), positionList);
     }
 }

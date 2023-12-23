@@ -2,7 +2,7 @@ package eu.planlos.javapretixconnector;
 
 import eu.planlos.javautilities.ZonedDateTimeUtility;
 import eu.planlos.javapretixconnector.model.*;
-import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterUpdateDTO;
+import eu.planlos.javapretixconnector.model.dto.PretixEventFilterUpdateDTO;
 import eu.planlos.javapretixconnector.model.dto.WebHookDTO;
 
 import java.util.Collections;
@@ -100,9 +100,10 @@ public class PretixTestDataUtility {
      * Filters
      */
 
-    public static PretixQnaFilter filterOK() {
-        return new PretixQnaFilter(
+    public static PretixEventFilter filterOK() {
+        return new PretixEventFilter(
                 ORDER_APPROVED.getAction(),
+                ORGANIZER,
                 EVENT,
                 Map.of(
                         CORRECT_QUESTION_1,
@@ -115,10 +116,11 @@ public class PretixTestDataUtility {
      * Must correspont to filterOK()
      * @return filter update dto
      */
-    public static PretixQnaFilterUpdateDTO updateFilterOK(Long id) {
-        return new PretixQnaFilterUpdateDTO(
+    public static PretixEventFilterUpdateDTO updateFilterOK(Long id) {
+        return new PretixEventFilterUpdateDTO(
                 id,
                 ORDER_APPROVED.getAction(),
+                ORGANIZER,
                 "UPDATED_EVENT",
                 Map.of(
                         CORRECT_QUESTION_1,
@@ -127,28 +129,31 @@ public class PretixTestDataUtility {
                         List.of(CORRECT_ANSWER_2)));
     }
 
-    public static PretixQnaFilter filterWithDuplicateAnswer() {
-        return new PretixQnaFilter(
+    public static PretixEventFilter filterWithDuplicateAnswer() {
+        return new PretixEventFilter(
                 ORDER_APPROVED.getAction(),
+                ORGANIZER,
                 EVENT,
                 Map.of(
                         CORRECT_QUESTION_1,
                         List.of(CORRECT_ANSWER_1, CORRECT_ANSWER_1)));
     }
 
-    public static PretixQnaFilter filterWithInvalidAction() {
-        return new PretixQnaFilter(
+    public static PretixEventFilter filterWithInvalidAction() {
+        return new PretixEventFilter(
                 "invalid.action",
+                ORGANIZER,
                 EVENT,
                 Map.of(
                         CORRECT_QUESTION_1,
                         List.of(CORRECT_ANSWER_1, CORRECT_ANSWER_2)));
     }
 
-    public static List<PretixQnaFilter> filterOKList() {
+    public static List<PretixEventFilter> filterOKList() {
         return List.of(
-                new PretixQnaFilter(
+                new PretixEventFilter(
                         ORDER_APPROVED.getAction(),
+                        ORGANIZER,
                         EVENT,
                         Map.of(
                                 CORRECT_QUESTION_1, List.of(CORRECT_ANSWER_1, CORRECT_ANSWER_2),
@@ -169,8 +174,9 @@ public class PretixTestDataUtility {
 
     public static Booking ticketBooking() {
         return new Booking(
-                EVENT,
                 CODE_NEW,
+                ORGANIZER,
+                EVENT,
                 "First",
                 "Last",
                 "first.last@example.com",
@@ -180,6 +186,7 @@ public class PretixTestDataUtility {
 
     public static Booking addonBooking() {
         return new Booking(
+                ORGANIZER,
                 EVENT,
                 CODE_NEW,
                 "First",
@@ -191,6 +198,7 @@ public class PretixTestDataUtility {
 
     public static Booking noPositionsBooking() {
         return new Booking(
+                ORGANIZER,
                 EVENT,
                 CODE_NEW,
                 "First",

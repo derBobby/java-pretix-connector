@@ -9,8 +9,10 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Map;
 
-public record PretixQnaFilterCreateDTO(
-    @JsonProperty("action") @NotNull @ValidAction String action,
-    @JsonProperty("event") @NotNull @ValidEvent String event,
-    @JsonProperty("qna-list") @NotNull @ValidFilterMap Map<String, List<String>> filterMap){
+public record PretixEventFilterUpdateDTO(
+        @JsonProperty("id") @NotNull Long id,
+        @JsonProperty("action") @NotNull @ValidAction String action,
+        @JsonProperty("organizer") @NotNull @ValidAction String organizer,
+        @JsonProperty("event") @NotNull @ValidEvent String event,
+        @JsonProperty("qna-list") @NotNull @ValidFilterMap Map<String, List<String>> filterMap) {
 }

@@ -1,8 +1,8 @@
 package eu.planlos.javapretixconnector.controller;
 
-import eu.planlos.javapretixconnector.model.PretixQnaFilter;
-import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterCreateDTO;
-import eu.planlos.javapretixconnector.model.dto.PretixQnaFilterUpdateDTO;
+import eu.planlos.javapretixconnector.model.PretixEventFilter;
+import eu.planlos.javapretixconnector.model.dto.PretixEventFilterCreateDTO;
+import eu.planlos.javapretixconnector.model.dto.PretixEventFilterUpdateDTO;
 import eu.planlos.javapretixconnector.service.PretixEventFilterService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -34,17 +34,17 @@ public class PretixEventFilterController {
     /**
      * cURL example:
      * curl -v -s -X POST -H "Content-Type: application/json;charset=UTF-8" -d '{"action":"pretix.event.order.approved","event":"event","qna-list":{"test":["test"]}}' http://localhost:8080/api/v1/filter
-     * @param pretixQnaFilterDTO Transfer object, will be converted to business object
+     * @param pretixEventFilterDTO Transfer object, will be converted to business object
      * @return JSON representation
      */
     @PostMapping
-    public ResponseEntity<PretixQnaFilter> post(@Valid @RequestBody PretixQnaFilterCreateDTO pretixQnaFilterDTO) {
-        PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(pretixQnaFilterDTO);
-        log.info("Create filter={}", pretixQnaFilter);
-        pretixEventFilterService.addFilter(pretixQnaFilter);
-        log.info("Created filter id={}", pretixQnaFilter.getId());
+    public ResponseEntity<PretixEventFilter> post(@Valid @RequestBody PretixEventFilterCreateDTO pretixEventFilterDTO) {
+        PretixEventFilter pretixEventFilter = new PretixEventFilter(pretixEventFilterDTO);
+        log.info("Create filter={}", pretixEventFilter);
+        pretixEventFilterService.addFilter(pretixEventFilter);
+        log.info("Created filter id={}", pretixEventFilter.getId());
 
-        return ResponseEntity.ok().body(pretixQnaFilter);
+        return ResponseEntity.ok().body(pretixEventFilter);
     }
 
     //TODO test
@@ -53,7 +53,7 @@ public class PretixEventFilterController {
      * @return JSON representation
      */
     @GetMapping
-    public ResponseEntity<List<PretixQnaFilter>> getAll() {
+    public ResponseEntity<List<PretixEventFilter>> getAll() {
         log.info("Read all filters");
         return ResponseEntity.ok().body(pretixEventFilterService.getAllFilters());
     }
@@ -63,25 +63,25 @@ public class PretixEventFilterController {
      * cURL example:
      * curl -s -X GET http://localhost:8080/api/v1/filter/1
      * @param id of the filter
-     * @return PretixQnaFilter.class as JSON
+     * @return PretixEventFilter.class as JSON
      */
     @GetMapping("/{id}")
-    public ResponseEntity<PretixQnaFilter> get(@PathVariable Long id) {
+    public ResponseEntity<PretixEventFilter> get(@PathVariable Long id) {
         log.info("Read filter id={}", id);
-        Optional<PretixQnaFilter> optionalPretixQnaFilter = pretixEventFilterService.getFilter(id);
-        return optionalPretixQnaFilter
-                .map(pretixQnaFilter -> ResponseEntity.ok().body(pretixQnaFilter))
+        Optional<PretixEventFilter> optionalPretixEventFilter = pretixEventFilterService.getFilter(id);
+        return optionalPretixEventFilter
+                .map(pretixEventFilter -> ResponseEntity.ok().body(pretixEventFilter))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     //TODO test
     @PutMapping
-    public ResponseEntity<PretixQnaFilter> put(@Valid @RequestBody PretixQnaFilterUpdateDTO pretixQnaFilterDTO) {
-        PretixQnaFilter pretixQnaFilter = new PretixQnaFilter(pretixQnaFilterDTO);
-        log.info("Update filter={}", pretixQnaFilter);
-        pretixEventFilterService.updateFilter(pretixQnaFilter);
-        log.info("Updated filter id={}", pretixQnaFilter.getId());
-        return ResponseEntity.ok().body(pretixQnaFilter);
+    public ResponseEntity<PretixEventFilter> put(@Valid @RequestBody PretixEventFilterUpdateDTO pretixEventFilterDTO) {
+        PretixEventFilter pretixEventFilter = new PretixEventFilter(pretixEventFilterDTO);
+        log.info("Update filter={}", pretixEventFilter);
+        pretixEventFilterService.updateFilter(pretixEventFilter);
+        log.info("Updated filter id={}", pretixEventFilter.getId());
+        return ResponseEntity.ok().body(pretixEventFilter);
     }
 
     //TODO test

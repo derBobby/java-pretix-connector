@@ -38,11 +38,11 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
     public void run(ApplicationArguments arg0) {
         //TODO Preload all, not only configured
         if(pretixApiConfig.eventList() != null) {
-            pretixApiConfig.eventList().forEach(this::preload);
+//            pretixApiConfig.eventList().forEach(this::preload);
         }
     }
 
-    private void preload(String event) {
+    private void preload(String organizer, String event) {
         if(pretixFeatureConfig.preloadAllExceptOrdersEnabled()) {
             logSeparator("STARTING PRELOAD (NON-ORDERS)");
             questionService.fetchAll(event);
@@ -51,7 +51,7 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
         }
         if(pretixFeatureConfig.preloadOrdersEnabled()) {
             logSeparator("STARTING PRELOAD (ORDERS)");
-            pretixBookingService.fetchAll(event);
+            pretixBookingService.fetchAll(organizer, event);
             logSeparator("PRELOAD COMPLETE (ORDERS)");
         }
     }

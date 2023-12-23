@@ -8,30 +8,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class StringToPretixQnaFilterConverter {
+public class StringToPretixEventFilterConverter {
 
     private final ObjectMapper objectMapper;
 
-    public StringToPretixQnaFilterConverter(ObjectMapper objectMapper) {
+    public StringToPretixEventFilterConverter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
-    public List<PretixQnaFilter> convertAll(List<String> filterList) throws JsonProcessingException {
+    public List<PretixEventFilter> convertAll(List<String> filterList) throws JsonProcessingException {
 
         if(filterList == null) {
             log.debug("Not converting: List is null");
             return new ArrayList<>();
         }
 
-        List<PretixQnaFilter> pretixQnaFilterList = new ArrayList<>();
+        List<PretixEventFilter> pretixEventFilterList = new ArrayList<>();
         for (String filter : filterList) {
-            pretixQnaFilterList.add(convert(filter));
+            pretixEventFilterList.add(convert(filter));
         }
-        return pretixQnaFilterList;
+        return pretixEventFilterList;
     }
 
-    private PretixQnaFilter convert(String filterString) throws JsonProcessingException {
-        PretixQnaFilter filter = objectMapper.readValue(filterString, PretixQnaFilter.class);
+    private PretixEventFilter convert(String filterString) throws JsonProcessingException {
+        PretixEventFilter filter = objectMapper.readValue(filterString, PretixEventFilter.class);
         log.debug("Converting: \"{}\" to \"{}\"", filterString, filter);
         return filter;
     }

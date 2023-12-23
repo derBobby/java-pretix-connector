@@ -4,7 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.javapretixconnector.config.PretixEventFilterConfig;
 import eu.planlos.javapretixconnector.model.*;
-import eu.planlos.javapretixconnector.repository.PretixQnaFilterRepository;
+import eu.planlos.javapretixconnector.model.dto.PretixSupportedActions;
+import eu.planlos.javapretixconnector.repository.PretixEventFilterRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,23 +20,23 @@ import java.util.Optional;
 public class PretixEventFilterService {
 
     private final PretixEventFilterConfig pretixEventFilterConfig;
-    private final PretixQnaFilterRepository pretixQnaFilterRepository;
+    private final PretixEventFilterRepository pretixEventFilterRepository;
 
     @Autowired
-    public PretixEventFilterService(PretixEventFilterConfig pretixEventFilterConfig, ObjectMapper objectMapper, PretixQnaFilterRepository pretixQnaFilterRepository) throws JsonProcessingException {
+    public PretixEventFilterService(PretixEventFilterConfig pretixEventFilterConfig, ObjectMapper objectMapper, PretixEventFilterRepository pretixEventFilterRepository) throws JsonProcessingException {
         this.pretixEventFilterConfig = pretixEventFilterConfig;
-        this.pretixQnaFilterRepository = pretixQnaFilterRepository;
+        this.pretixEventFilterRepository = pretixEventFilterRepository;
 
         if(pretixEventFilterConfig.isPropertiesSourceConfigured()) {
-            log.debug("Filters provided by properties file are configured");
+            log.info("Filters provided by properties file are configured");
             handlePropertiesAsFilterSource(objectMapper);
             return;
         }
-        log.debug("Filters provided by user are configured");
+        log.info("Filters provided by user are configured");
     }
 
     private void handlePropertiesAsFilterSource(ObjectMapper objectMapper) throws JsonProcessingException {
-        if(pretixQnaFilterRepository.findAll().isEmpty()) {
+        if(pretixEventFilterRepository.findAll().isEmpty()) {
             log.debug("No filters in DB found. Proceed to persist filters from properties file");
             persistFilterFromProperties(objectMapper);
         } else {
@@ -44,19 +45,19 @@ public class PretixEventFilterService {
     }
 
     private void persistFilterFromProperties(ObjectMapper objectMapper) throws JsonProcessingException {
-        pretixQnaFilterRepository.saveAll(
-                new StringToPretixQnaFilterConverter(objectMapper)
+        pretixEventFilterRepository.saveAll(
+                new StringToPretixEventFilterConverter(objectMapper)
                         .convertAll(pretixEventFilterConfig.getFilterList()));
     }
 
     /**
      * Constructor package private for tests
-     * @param pretixQnaFilterList Test filter list
+     * @param pretixEventFilterList Test filter list
      */
-    PretixEventFilterService(PretixQnaFilterRepository pretixQnaFilterRepository, List<PretixQnaFilter> pretixQnaFilterList) {
+    PretixEventFilterService(PretixEventFilterRepository pretixEventFilterRepository, List<PretixEventFilter> pretixEventFilterList) {
         this.pretixEventFilterConfig = new PretixEventFilterConfig(null, null);
-        this.pretixQnaFilterRepository = pretixQnaFilterRepository;
-        this.pretixQnaFilterRepository.saveAll(pretixQnaFilterList);
+        this.pretixEventFilterRepository = pretixEventFilterRepository;
+        this.pretixEventFilterRepository.saveAll(pretixEventFilterList);
     }
 
     /*
@@ -66,42 +67,42 @@ public class PretixEventFilterService {
     /**
      * Creates filter if it exists or not
      * Not idempotent repo access, will create new for each call
-     * @param pretixQnaFilter Filter object
+     * @param pretixEventFilter Filter object
      */
-    public void addFilter(PretixQnaFilter pretixQnaFilter) {
-        if(pretixQnaFilter.getId() == null) {
-            pretixQnaFilterRepository.save(pretixQnaFilter);
+    public void addFilter(PretixEventFilter pretixEventFilter) {
+        if(pretixEventFilter.getId() == null) {
+            pretixEventFilterRepository.save(pretixEventFilter);
             return;
         }
         throw new IllegalArgumentException("Filter must not have id");
     }
 
-    public Optional<PretixQnaFilter> getFilter(Long id) {
-        return pretixQnaFilterRepository.findById(id);
+    public Optional<PretixEventFilter> getFilter(Long id) {
+        return pretixEventFilterRepository.findById(id);
     }
 
-    public List<PretixQnaFilter> getAllFilters() {
-        return pretixQnaFilterRepository.findAll();
+    public List<PretixEventFilter> getAllFilters() {
+        return pretixEventFilterRepository.findAll();
     }
 
     /**
      * Creates or updates filter.
      * Idempotent method.
-     * @param pretixQnaFilter Filter object
+     * @param pretixEventFilter Filter object
      */
-    public void updateFilter(PretixQnaFilter pretixQnaFilter) {
-        if(pretixQnaFilter.getId() == null) {
+    public void updateFilter(PretixEventFilter pretixEventFilter) {
+        if(pretixEventFilter.getId() == null) {
             throw new IllegalArgumentException("Filter must have have id");
         }
-        if(! pretixQnaFilterRepository.existsById(pretixQnaFilter.getId())) {
-            throw new EntityNotFoundException("Filter does not exist id=" + pretixQnaFilter.getId());
+        if(! pretixEventFilterRepository.existsById(pretixEventFilter.getId())) {
+            throw new EntityNotFoundException("Filter does not exist id=" + pretixEventFilter.getId());
         }
-        pretixQnaFilterRepository.save(pretixQnaFilter);
+        pretixEventFilterRepository.save(pretixEventFilter);
     }
 
     public void deleteFilter(Long id) {
         if(getFilter(id).isPresent()) {
-            pretixQnaFilterRepository.deleteById(id);
+            pretixEventFilterRepository.deleteById(id);
             return;
         }
         throw new EntityNotFoundException("Filter does not exist id=" + id);
@@ -117,11 +118,11 @@ public class PretixEventFilterService {
      * @param booking to be looked for
      * @return true if there is no  filter at all, that wants the booking
      */
-    public boolean bookingNotWantedByAnyFilter(String action, Booking booking) {
+    public boolean bookingNotWantedByAnyFilter(PretixSupportedActions action, Booking booking) {
         List<Position> ticketPositionList = booking.getPositionList().stream()
                 .filter(position -> ! position.getProduct().getProductType().isAddon())
                 .filter(position -> ! position.getQnA().isEmpty()) //TODO could be removed?
-                .filter(position -> matchesQnaFilter(action, booking.getEvent(), position.getQnA()))
+                .filter(position -> matchesEventFilter(action.getAction(), booking.getOrganizer(), booking.getEvent(), position.getQnA()))
                 .toList();
         return ticketPositionList.isEmpty();
     }
@@ -134,8 +135,8 @@ public class PretixEventFilterService {
      * @param qnaMap to be looked for
      * @return true if a filter exists
      */
-    boolean matchesQnaFilter(String action, String event, Map<Question, Answer> qnaMap) {
-        return pretixQnaFilterRepository.findByActionAndEvent(action, event).stream()
+    boolean matchesEventFilter(String action, String organizer, String event, Map<Question, Answer> qnaMap) {
+        return pretixEventFilterRepository.findByActionAndOrganizerAndEvent(action, organizer, event).stream()
                 .anyMatch(filter -> filter.filterQnA(qnaMap));
     }
 }

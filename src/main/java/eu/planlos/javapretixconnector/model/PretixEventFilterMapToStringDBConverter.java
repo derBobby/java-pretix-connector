@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Converter
 @Slf4j
-public class PretixQnaFilterMapToStringDBConverter implements AttributeConverter<Map<String, List<String>>, String> {
+public class PretixEventFilterMapToStringDBConverter implements AttributeConverter<Map<String, List<String>>, String> {
 
     @Override
     public String convertToDatabaseColumn(Map<String, List<String>> pretixQnaFilterMap) {
@@ -20,7 +20,7 @@ public class PretixQnaFilterMapToStringDBConverter implements AttributeConverter
             ObjectMapper objectMapper = new ObjectMapper();
             return objectMapper.writeValueAsString(pretixQnaFilterMap);
         } catch (JsonProcessingException e) {
-            log.error("Error serializing PretixQnaFilter to JSON", e);
+            log.error("Error serializing PretixEventFilter to JSON", e);
             return null; // You can handle the error as needed
         }
     }
@@ -32,7 +32,7 @@ public class PretixQnaFilterMapToStringDBConverter implements AttributeConverter
             return objectMapper.readValue(dbDataJson, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
-            log.error("Error deserializing JSON to PretixQnaFilter", e);
+            log.error("Error deserializing JSON to PretixEventFilter", e);
             return null; // You can handle the error as needed
         }
     }
