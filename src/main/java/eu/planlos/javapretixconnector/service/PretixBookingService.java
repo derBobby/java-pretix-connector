@@ -34,7 +34,7 @@ public class PretixBookingService {
     public Booking loadOrFetch(String organizer, String event, String code) {
 
         // Get from DB
-        Optional<Booking> optionalBooking = bookingRepository.findByEventAndCode(event, code);
+        Optional<Booking> optionalBooking = bookingRepository.findByOrganizerAndEventAndCode(organizer, event, code);
         if(optionalBooking.isPresent()) {
             Booking booking = optionalBooking.get();
             log.info("Loaded booking from db: {}", booking);
