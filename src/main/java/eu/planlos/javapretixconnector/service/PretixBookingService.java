@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-public class PretixBookingService {
+public class PretixBookingService implements IPretixBookingService {
 
     private final PretixApiOrderService pretixApiOrderService;
     private final ProductService productService;
@@ -31,6 +31,7 @@ public class PretixBookingService {
         this.bookingRepository = bookingRepository;
     }
 
+    @Override
     public Booking loadOrFetch(String organizer, String event, String code) {
 
         // Get from DB
@@ -51,12 +52,14 @@ public class PretixBookingService {
         return bookingRepository.save(booking);
     }
 
+    @Override
     public void fetchAll(String organizer, String event) {
         List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders(event);
         List<Booking> bookingList = orderDTOList.stream().map(orderDTO -> convert(organizer, event, orderDTO)).collect(Collectors.toList());
         bookingRepository.saveAll(bookingList);
     }
 
+    @Override
     public String getOrderUrl(String event, String orderCode) {
         return pretixApiOrderService.getEventUrl(event, orderCode);
     }
@@ -72,6 +75,6 @@ public class PretixBookingService {
             positionList.add(new Position(product, QnAmap));
         });
 
-        return new Booking(event, organizer, orderDTO.getCode(), orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), positionList);
+        return new Booking(orderDTO.getCode(), organizer, event, orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), positionList);
     }
 }
