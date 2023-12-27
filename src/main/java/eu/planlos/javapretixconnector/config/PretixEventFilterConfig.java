@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -20,11 +22,16 @@ public class PretixEventFilterConfig {
     public PretixEventFilterConfig(
             String source,
             List<String> filterList) {
-        this.source = PretixEventFilterSource.fromString(source);
-        this.filterList = filterList;
+        this.source = Optional.ofNullable(source)
+                .map(PretixEventFilterSource::fromString)
+                .orElse(PretixEventFilterSource.PROPERTIES);
+
+        this.filterList = Optional.ofNullable(filterList).orElse(Collections.emptyList());
 
         log.info("Creating pretix event filter config:");
-        log.info("- filter source: {}", source);
+        log.info("- filter source: {} -> {}", source, this.source);
+        log.info("- filter count: {}", this.filterList.size());
+        this.filterList.forEach(filter -> log.info("- {}", filter));
     }
 
     public boolean isPropertiesSourceConfigured() {
@@ -47,17 +54,11 @@ public class PretixEventFilterConfig {
         }
 
         public static PretixEventFilterSource fromString(String text) {
-
-            if(text == null || text.isEmpty()) {
-                return PretixEventFilterSource.PROPERTIES;
-            }
-
             for (PretixEventFilterSource source : PretixEventFilterSource.values()) {
                 if (source.value.equalsIgnoreCase(text)) {
                     return source;
                 }
             }
-
             throw new IllegalArgumentException("pretix.event-filter.source must be set to one of the values: " + validSources());
         }
 
