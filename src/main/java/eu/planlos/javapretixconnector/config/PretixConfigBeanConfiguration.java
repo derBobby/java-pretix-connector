@@ -4,6 +4,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties({PretixApiConfig.class, PretixEventFilterConfig.class, PretixFeatureConfig.class})
+@EnableConfigurationProperties({PretixApiConfig.class, PretixFeatureConfig.class})
 public class PretixConfigBeanConfiguration {
 }

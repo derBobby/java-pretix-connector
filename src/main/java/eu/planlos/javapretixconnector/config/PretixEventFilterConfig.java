@@ -2,7 +2,8 @@ package eu.planlos.javapretixconnector.config;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,7 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
-@ConfigurationProperties(prefix = "pretix.event-filter")
+@Configuration
 public class PretixEventFilterConfig {
 
     private final PretixEventFilterSource source;
@@ -20,13 +21,13 @@ public class PretixEventFilterConfig {
     private final List<String> filterList;
 
     public PretixEventFilterConfig(
-            String source,
-            List<String> filterList) {
+            @Value("${pretix.event-filter.source}") String source,
+            @Value("#{'${pretix.event-filter.filter-list}'.split('\\|\\|')}") List<String> filterList) {
+
+        this.filterList = Optional.ofNullable(filterList).orElse(Collections.emptyList());
         this.source = Optional.ofNullable(source)
                 .map(PretixEventFilterSource::fromString)
                 .orElse(PretixEventFilterSource.PROPERTIES);
-
-        this.filterList = Optional.ofNullable(filterList).orElse(Collections.emptyList());
 
         log.info("Creating pretix event filter config:");
         log.info("- filter source: {} -> {}", source, this.source);

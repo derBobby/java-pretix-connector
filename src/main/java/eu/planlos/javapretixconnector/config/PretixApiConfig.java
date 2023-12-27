@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-//TODO organizer not yet used from filter, authentication?
 @ConfigurationProperties(prefix = "pretix.api")
 public record PretixApiConfig(Boolean active, String address, String token, String organizer, List<String> eventList, Integer retryCount, Integer retryInterval) {
 
