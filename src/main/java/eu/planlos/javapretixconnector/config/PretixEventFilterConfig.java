@@ -21,13 +21,18 @@ public class PretixEventFilterConfig {
     private final List<String> filterList;
 
     public PretixEventFilterConfig(
-            @Value("${pretix.event-filter.source}") String source,
-            @Value("#{'${pretix.event-filter.filter-list}'.split('\\|\\|')}") List<String> filterList) {
+            @Value("${pretix.event-filter.source:#{null}}") String source,
+            @Value("${pretix.event-filter.filter-list:#{null}}") String filterList) {
 
-        this.filterList = Optional.ofNullable(filterList).orElse(Collections.emptyList());
         this.source = Optional.ofNullable(source)
                 .map(PretixEventFilterSource::fromString)
                 .orElse(PretixEventFilterSource.PROPERTIES);
+        this.filterList = Optional.ofNullable(filterList)
+                .map(filterString -> Arrays.asList(filterString.split("\\|\\|")))
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
 
         log.info("Creating pretix event filter config:");
         log.info("- filter source: {} -> {}", source, this.source);
