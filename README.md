@@ -2,7 +2,7 @@
 
 # java-pretix-connector
 This spring boot library allows to fetch almost everything related to Orders from the Pretix API.
-Everything that was fetched from the Pretix API is cached/stored locally. Currently there is no automatic refresh.
+Everything that was fetched from the Pretix API is cached/stored locally. Currently, there is no automatic refresh.
 It can also handle WebHooks from Pretix.
 
 ## Features
@@ -40,19 +40,19 @@ public class DataConfig {}
 ```
 
 ## Properties setup
-| Property                                           | Type    | Description                                                                       |
-|----------------------------------------------------|---------|-----------------------------------------------------------------------------------|
-| `pretix.api.active`                                | Boolean | Enable/Disable usage of API                                                       |
-| `pretix.api.address`                               | String  | URL of the Pretix API                                                             |
-| `pretix.api.token`                                 | String  | Authenticationtoken                                                               | 
-| `pretix.api.organizer`                             | String  | Organization of the owned events                                                  | 
-| `pretix.api.retry-count`                           | Integer | Retry count in case of exception                                                  | 
-| `pretix.api.retry-interval`                        | Integer | Interval for retries in case of exception                                         | 
-| `pretix.api.event-list`                            | String  | List of events, that should be preloaded                                          | 
-| `pretix.feature.preload-all-except-orders-enabled` | Boolean | Preload everything but orders for events of `pretix.api.event-list`               | 
-| `pretix.feature.preload-orders-enabled`            | Boolean | Preload orders for events of `pretix.api.event-list`                              | 
-| `pretix.event-filter.source`                       | Enum    | `USER`, `PROPERTIES`: Defines source for filter, configured or set during runtime | 
-| `pretix.event-filter.filter-list[]`                | JSON    | Used to filter bookings if `pretix.event-filter.source` is set to `PROPERTIES`    |
+| Property                                           | Type         | Description                                                                                                                                                                                                                                                                         |
+|----------------------------------------------------|--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `pretix.api.active`                                | Boolean      | Enable/Disable usage of API                                                                                                                                                                                                                                                         |
+| `pretix.api.address`                               | String       | URL of the Pretix API                                                                                                                                                                                                                                                               |
+| `pretix.api.token`                                 | String       | Authentication token                                                                                                                                                                                                                                                                | 
+| `pretix.api.organizer`                             | String       | Organization of the owned events                                                                                                                                                                                                                                                    | 
+| `pretix.api.retry-count`                           | Integer      | Retry count in case of exception                                                                                                                                                                                                                                                    | 
+| `pretix.api.retry-interval`                        | Integer      | Interval for retries in case of exception                                                                                                                                                                                                                                           | 
+| `pretix.api.event-list`                            | String       | List of events, that should be preloaded                                                                                                                                                                                                                                            | 
+| `pretix.feature.preload-all-except-orders-enabled` | Boolean      | Preload everything but orders for events of `pretix.api.event-list`                                                                                                                                                                                                                 | 
+| `pretix.feature.preload-orders-enabled`            | Boolean      | Preload orders for events of `pretix.api.event-list`                                                                                                                                                                                                                                | 
+| `pretix.event-filter.source`                       | Enum         | `USER`, `PROPERTIES` (default): Defines source for filter, configured or set during runtime                                                                                                                                                                                         | 
+| `pretix.event-filter.filter-list`                  | List of JSON | Format `{json}\|\|{json}` required due to the way Spring handles lists. Used to filter bookings if `pretix.event-filter.source` is set to `PROPERTIES`. List will be persisted in the database. If, on startup, filters exist in the database, then this property will not be used. |
 
 ### Filter Example
 ```json
