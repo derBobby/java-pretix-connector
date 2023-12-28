@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static eu.planlos.javapretixconnector.config.PretixEventFilterConfig.PretixEventFilterSource.PROPERTIES;
+
 @Slf4j
 @Configuration
 public class PretixEventFilterConfig {
@@ -25,8 +27,9 @@ public class PretixEventFilterConfig {
             @Value("${pretix.event-filter.filter-list:#{null}}") String filterList) {
 
         this.source = Optional.ofNullable(source)
+                .filter(s -> !s.isEmpty())  // Filter out empty strings
                 .map(PretixEventFilterSource::fromString)
-                .orElse(PretixEventFilterSource.PROPERTIES);
+                .orElse(PROPERTIES);
         this.filterList = Optional.ofNullable(filterList)
                 .map(filterString -> Arrays.asList(filterString.split("\\|\\|")))
                 .orElse(Collections.emptyList())
@@ -41,7 +44,7 @@ public class PretixEventFilterConfig {
     }
 
     public boolean isPropertiesSourceConfigured() {
-        return source.equals(PretixEventFilterSource.PROPERTIES);
+        return source.equals(PROPERTIES);
     }
 
     public boolean isUserSourceConfigured() {
@@ -49,7 +52,7 @@ public class PretixEventFilterConfig {
     }
 
     @Getter
-    private enum PretixEventFilterSource {
+    public enum PretixEventFilterSource {
         PROPERTIES("properties"),
         USER("user");
 
