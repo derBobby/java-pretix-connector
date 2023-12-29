@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Profile;
 
-@Profile("javapretixconnector-dev")
+@Profile("java-pretix-connector-dev")
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class Application implements IPretixWebHookHandler{
