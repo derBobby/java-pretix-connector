@@ -1,6 +1,6 @@
 package eu.planlos.javapretixconnector.service.api;
 
-import eu.planlos.javapretixconnector.common.PretixException;
+import eu.planlos.javapretixconnector.model.PretixException;
 import eu.planlos.javapretixconnector.config.PretixApiConfig;
 import eu.planlos.javapretixconnector.model.dto.list.OrdersDTO;
 import eu.planlos.javapretixconnector.model.dto.single.OrderDTO;

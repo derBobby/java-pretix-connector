@@ -1,6 +1,6 @@
 package eu.planlos.javapretixconnector.service.api;
 
-import eu.planlos.javapretixconnector.common.PretixException;
+import eu.planlos.javapretixconnector.model.PretixException;
 import eu.planlos.javapretixconnector.config.PretixApiConfig;
 import eu.planlos.javapretixconnector.model.PretixId;
 import eu.planlos.javapretixconnector.model.dto.list.ItemCategoriesDTO;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static eu.planlos.javapretixconnector.common.PretixException.*;
+import static eu.planlos.javapretixconnector.model.PretixException.*;
 
 @Slf4j
 @Service

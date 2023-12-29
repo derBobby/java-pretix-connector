@@ -1,4 +1,4 @@
-package eu.planlos.javapretixconnector.common;
+package eu.planlos.javapretixconnector.model;
 
 import java.io.Serial;
 
