@@ -114,6 +114,8 @@ class PretixWebhookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(wrongActionHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                // This basically tests functionality of the java-spring-web-utilities library.
+                // Stays here for now.
                 .andExpect(MockMvcResultMatchers.content().string("{\"action\":\"Invalid action\"}"));
     }
 
@@ -123,6 +125,8 @@ class PretixWebhookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(missingOrganizerActionHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                // This basically tests functionality of the java-spring-web-utilities library.
+                // Stays here for now.
                 .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"must not be null\"}"));
     }
 
@@ -132,6 +136,8 @@ class PretixWebhookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(specialCharInOrganizerHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                // This basically tests functionality of the java-spring-web-utilities library.
+                // Stays here for now.
                 .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"Invalid organizer\"}"));
     }
 
@@ -141,6 +147,8 @@ class PretixWebhookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(tooManyCharsInOrganizerHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                // This basically tests functionality of the java-spring-web-utilities library.
+                // Stays here for now.
                 .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"Invalid organizer\"}"));
     }
 
@@ -150,6 +158,8 @@ class PretixWebhookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(specialCharInEventHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                // This basically tests functionality of the java-spring-web-utilities library.
+                // Stays here for now.
                 .andExpect(MockMvcResultMatchers.content().string("{\"event\":\"Invalid event\"}"));
     }
 
@@ -159,6 +169,8 @@ class PretixWebhookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(tooManyCharsInEventHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                // This basically tests functionality of the java-spring-web-utilities library.
+                // Stays here for now.
                 .andExpect(MockMvcResultMatchers.content().string("{\"event\":\"Invalid event\"}"));
     }
 
@@ -168,6 +180,8 @@ class PretixWebhookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(specialCharInCodeHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                // This basically tests functionality of the java-spring-web-utilities library.
+                // Stays here for now.
                 .andExpect(MockMvcResultMatchers.content().string("{\"code\":\"Invalid code\"}"));
     }
 
@@ -177,6 +191,8 @@ class PretixWebhookControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(tooManyCharsInCodeHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                // This basically tests functionality of the java-spring-web-utilities library.
+                // Stays here for now.
                 .andExpect(MockMvcResultMatchers.content().string("{\"code\":\"Invalid code\"}"));
     }
 
