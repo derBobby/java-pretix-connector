@@ -3,6 +3,7 @@ package eu.planlos.javapretixconnector.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.planlos.javapretixconnector.IPretixWebHookHandler;
+import eu.planlos.javapretixconnector.TestContextConfiguration;
 import eu.planlos.javapretixconnector.model.dto.WebHookDTO;
 import eu.planlos.javapretixconnector.model.dto.WebHookResult;
 import jakarta.servlet.ServletContext;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -31,6 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <a href="https://reflectoring.io/spring-boot-web-controller-test/">...</a>
  */
 @WebMvcTest(controllers = PretixWebhookController.class)
+@ContextConfiguration(classes = TestContextConfiguration.class)
 class PretixWebhookControllerTest {
 
     @Autowired
@@ -63,10 +66,10 @@ class PretixWebhookControllerTest {
         when(webHookHandler.handleWebhook(any(), any(), any(), any()))
                 .thenReturn(new WebHookResult(true, "Test"));
 
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(orderNeedsApprovalHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(orderNeedsApprovalHookJson()))
                 .andExpect(status().is(HttpStatus.OK.value()));
     }
 
@@ -76,8 +79,8 @@ class PretixWebhookControllerTest {
         when(webHookHandler.handleWebhook(any(), any(), any(), any()))
                 .thenReturn(new WebHookResult(true, "Test"));
 
-        mockMvc.perform(
-                MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post(PretixWebhookController.URL_WEBHOOK)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(orderApprovedHookJson()))
                 .andExpect(status().is(HttpStatus.OK.value()));
@@ -93,10 +96,10 @@ class PretixWebhookControllerTest {
         when(webHookHandler.handleWebhook(any(), any(), any(), any()))
                 .thenReturn(new WebHookResult(false, "Test"));
 
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(orderNeedsApprovalHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(orderNeedsApprovalHookJson()))
                 .andExpect(status().is(HttpStatus.BAD_REQUEST.value()));
     }
 
@@ -106,80 +109,73 @@ class PretixWebhookControllerTest {
 
     @Test
     public void hookUsesInvalidAction_returns400() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(wrongActionHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders
+                        .post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(wrongActionHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().string("{\"action\":\"Invalid action\"}"));
     }
 
     @Test
     public void organizerIsNull_returns400() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(missingOrganizerActionHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(missingOrganizerActionHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"must not be null\"}"));
     }
 
     @Test
     public void organizerContainsSpecialChars_returns400() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(specialCharInOrganizerHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(specialCharInOrganizerHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"Invalid organizer\"}"));
     }
 
     @Test
     public void organizerExceedsChars_returns400() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(tooManyCharsInOrganizerHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(tooManyCharsInOrganizerHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().string("{\"organizer\":\"Invalid organizer\"}"));
     }
 
     @Test
     public void eventContainsSpecialChars_returns400() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(specialCharInEventHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(specialCharInEventHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().string("{\"event\":\"Invalid event\"}"));
     }
 
     @Test
     public void eventExceedsChars_returns400() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(tooManyCharsInEventHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(tooManyCharsInEventHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().string("{\"event\":\"Invalid event\"}"));
     }
 
     @Test
     public void codeContainsSpecialChars_returns400() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(specialCharInCodeHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(specialCharInCodeHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().string("{\"code\":\"Invalid code\"}"));
     }
 
     @Test
     public void codeExceedsChars_returns400() throws Exception {
-        mockMvc.perform(
-                        MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(tooManyCharsInCodeHookJson()))
+        mockMvc.perform(MockMvcRequestBuilders.post(PretixWebhookController.URL_WEBHOOK)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(tooManyCharsInCodeHookJson()))
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
                 .andExpect(MockMvcResultMatchers.content().string("{\"code\":\"Invalid code\"}"));
     }
