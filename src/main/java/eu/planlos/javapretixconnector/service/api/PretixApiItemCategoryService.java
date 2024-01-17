@@ -5,6 +5,7 @@ import eu.planlos.javapretixconnector.config.PretixApiConfig;
 import eu.planlos.javapretixconnector.model.PretixId;
 import eu.planlos.javapretixconnector.model.dto.list.ItemCategoriesDTO;
 import eu.planlos.javapretixconnector.model.dto.single.ItemCategoryDTO;
+import eu.planlos.javaspringwebutilities.web.WebClientRetryFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -42,7 +43,10 @@ public class PretixApiItemCategoryService extends PretixApiService {
                 .uri(itemCategoryListUri(event))
                 .retrieve()
                 .bodyToMono(ItemCategoriesDTO.class)
-                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
+                .retryWhen(Retry
+                        .fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval()))
+                        .filter(WebClientRetryFilter::shouldRetry)
+                )
                 .doOnError(error -> log.error("Message fetching all item categories from Pretix API: {}", error.getMessage()))
                 .block();
 
