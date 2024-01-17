@@ -121,7 +121,6 @@ public class PretixEventFilterService {
     public boolean bookingNotWantedByAnyFilter(PretixSupportedActions action, Booking booking) {
         List<Position> ticketPositionList = booking.getPositionList().stream()
                 .filter(position -> ! position.getProduct().getProductType().isAddon())
-                .filter(position -> ! position.getQnA().isEmpty()) //TODO could be removed?
                 .filter(position -> matchesEventFilter(action.getAction(), booking.getOrganizer(), booking.getEvent(), position.getQnA()))
                 .toList();
         return ticketPositionList.isEmpty();

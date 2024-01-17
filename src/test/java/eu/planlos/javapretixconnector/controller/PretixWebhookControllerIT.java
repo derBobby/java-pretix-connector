@@ -48,7 +48,7 @@ class PretixWebhookControllerIT {
         ServletContext servletContext = webApplicationContext.getServletContext();
 
         assertNotNull(servletContext);
-        assertTrue(servletContext instanceof MockServletContext);
+        assertInstanceOf(MockServletContext.class, servletContext);
         assertTrue(webApplicationContext.containsBean("pretixWebhookController"));
     }
 

@@ -47,7 +47,6 @@ class PretixEventFilterConfigTest {
     }
 
     @Test
-    //TODO Currently the service creates real filters from this config. But already the config could know about a false configuration.
     public void filterListContainsBrokenJson_producesTwoEntries() {
         new PretixEventFilterConfig("properties", "{\"action\": \"pretix.event.order.placed\", \"organizer\": \"organizer\", \"event\": \"event\", \"qna-list\": {}");
     }

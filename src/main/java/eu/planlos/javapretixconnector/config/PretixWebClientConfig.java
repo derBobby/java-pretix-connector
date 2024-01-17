@@ -23,7 +23,6 @@ public class PretixWebClientConfig {
 
         return WebClient.builder()
                 .baseUrl(apiConfig.address())
-                //TODO inject from outside
                 .filter(WebClientRequestFilter.logRequest())
                 .filter(WebClientResponseFilter.logResponse())
                 .filter(WebClientResponseFilter.handleError())
