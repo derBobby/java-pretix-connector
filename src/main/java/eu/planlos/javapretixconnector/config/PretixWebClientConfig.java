@@ -1,5 +1,7 @@
 package eu.planlos.javapretixconnector.config;
 
+import eu.planlos.javaspringwebutilities.web.WebClientRequestFilter;
+import eu.planlos.javaspringwebutilities.web.WebClientResponseFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -22,9 +24,9 @@ public class PretixWebClientConfig {
         return WebClient.builder()
                 .baseUrl(apiConfig.address())
                 //TODO inject from outside
-//                .filter(WebClientRequestFilter.logRequest())
-//                .filter(WebClientResponseFilter.logResponse())
-//                .filter(WebClientResponseFilter.handleError())
+                .filter(WebClientRequestFilter.logRequest())
+                .filter(WebClientResponseFilter.logResponse())
+                .filter(WebClientResponseFilter.handleError())
                 .defaultHeaders(httpHeaders -> httpHeaders.set(HttpHeaders.AUTHORIZATION, String.join("", "Token ", apiConfig.token())))
                 .build();
     }
