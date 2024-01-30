@@ -10,6 +10,7 @@ public enum PretixSupportedActions {
     ORDER_PLACED("pretix.event.order.placed", "New"),
     ORDER_NEED_APPROVAL("pretix.event.order.placed.require_approval", "Need OK"),
     ORDER_APPROVED("pretix.event.order.approved", "Got OK"),
+    ORDER_CHANGED("pretix.event.order.modified", "Changed"),
     ORDER_CANCELED("pretix.event.order.canceled", "Cancelled");
 
     private final String action;
