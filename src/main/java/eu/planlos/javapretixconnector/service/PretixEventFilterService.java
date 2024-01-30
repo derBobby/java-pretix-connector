@@ -141,7 +141,11 @@ public class PretixEventFilterService {
      * @return true if a filter exists
      */
     boolean matchesEventFilter(String action, String organizer, String event, Map<Question, Answer> qnaMap) {
-        boolean matchesEventFilter = pretixEventFilterRepository.findByActionAndOrganizerAndEvent(action, organizer, event).stream()
+        List<PretixEventFilter> pretixEventFilterList = pretixEventFilterRepository.findByActionAndOrganizerAndEvent(action, organizer, event);
+        log.debug("Found filters:");
+
+        boolean matchesEventFilter = pretixEventFilterList.stream()
+                .peek(filter -> log.debug("- {}", filter))
                 .anyMatch(filter -> filter.filterQnA(qnaMap));
         log.debug("{}, {}, {}, {} -> matchesEventFilter={}", action, organizer, event, qnaMap, matchesEventFilter);
         return matchesEventFilter;
