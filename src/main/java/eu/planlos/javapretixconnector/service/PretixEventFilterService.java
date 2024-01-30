@@ -120,10 +120,16 @@ public class PretixEventFilterService {
      */
     public boolean bookingNotWantedByAnyFilter(PretixSupportedActions action, Booking booking) {
         List<Position> ticketPositionList = booking.getPositionList().stream()
-                .filter(position -> ! position.getProduct().getProductType().isAddon())
+                .filter(this::noAddon)
                 .filter(position -> matchesEventFilter(action.getAction(), booking.getOrganizer(), booking.getEvent(), position.getQnA()))
                 .toList();
         return ticketPositionList.isEmpty();
+    }
+
+    private boolean noAddon(Position position) {
+        boolean isAddon = position.getProduct().getProductType().isAddon();
+        log.debug("{} isAddon={}", position, isAddon);
+        return !isAddon;
     }
 
     /**
@@ -135,7 +141,9 @@ public class PretixEventFilterService {
      * @return true if a filter exists
      */
     boolean matchesEventFilter(String action, String organizer, String event, Map<Question, Answer> qnaMap) {
-        return pretixEventFilterRepository.findByActionAndOrganizerAndEvent(action, organizer, event).stream()
+        boolean matchesEventFilter = pretixEventFilterRepository.findByActionAndOrganizerAndEvent(action, organizer, event).stream()
                 .anyMatch(filter -> filter.filterQnA(qnaMap));
+        log.debug("{}, {}, {}, {} -> matchesEventFilter={}", action, organizer, event, qnaMap, matchesEventFilter);
+        return matchesEventFilter;
     }
 }

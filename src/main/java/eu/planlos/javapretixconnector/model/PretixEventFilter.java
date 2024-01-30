@@ -10,6 +10,7 @@ import eu.planlos.javapretixconnector.model.validation.ValidOrganizer;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Map;
 
 import static eu.planlos.javapretixconnector.model.QnaMapUtility.extractQnaMap;
 
+@Slf4j
 @Entity
 @EqualsAndHashCode
 @NoArgsConstructor /* Required for ObjectMapper*/
@@ -81,12 +83,16 @@ public final class PretixEventFilter {
 
         Map<String, String> extractedQnaMap = extractQnaMap(qnaMap);
 
-        return filterMap.entrySet().stream().allMatch(entry -> {
+        boolean allMatch = filterMap.entrySet().stream().allMatch(entry -> {
             String filterQuestion = entry.getKey();
             List<String> filterAnswerList = entry.getValue();
             String givenAnswer = extractedQnaMap.get(filterQuestion);
             return givenAnswer != null && filterAnswerList.contains(givenAnswer);
         });
+
+        log.debug("All QnA from {} match filter {} -> allMatch={}", qnaMap, filterMap, allMatch);
+
+        return allMatch;
     }
 
     public PretixEventFilter(PretixEventFilterCreateDTO dto) {
