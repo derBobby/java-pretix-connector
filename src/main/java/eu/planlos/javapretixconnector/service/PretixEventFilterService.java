@@ -147,7 +147,7 @@ public class PretixEventFilterService {
         boolean matchesEventFilter = pretixEventFilterList.stream()
                 .peek(filter -> log.debug("- {}", filter))
                 .anyMatch(filter -> filter.filterQnA(qnaMap));
-        log.debug("{}, {}, {}, {} -> matchesEventFilter={}", action, organizer, event, qnaMap, matchesEventFilter);
+        log.info("{}, {}, {}, {} -> matchesEventFilter={}", action, organizer, event, qnaMap, matchesEventFilter);
         return matchesEventFilter;
     }
 }
