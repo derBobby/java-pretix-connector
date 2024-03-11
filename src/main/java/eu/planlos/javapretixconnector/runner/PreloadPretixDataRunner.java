@@ -2,9 +2,11 @@ package eu.planlos.javapretixconnector.runner;
 
 import eu.planlos.javapretixconnector.config.PretixApiConfig;
 import eu.planlos.javapretixconnector.config.PretixFeatureConfig;
+import eu.planlos.javapretixconnector.model.dto.single.EventDTO;
 import eu.planlos.javapretixconnector.service.PretixBookingService;
 import eu.planlos.javapretixconnector.service.ProductService;
 import eu.planlos.javapretixconnector.service.QuestionService;
+import eu.planlos.javapretixconnector.service.api.PretixApiEventService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -21,13 +23,15 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
     private final ProductService productService;
     private final QuestionService questionService;
     private final PretixBookingService pretixBookingService;
+    private final PretixApiEventService pretixApiEventService;
 
-    public PreloadPretixDataRunner(PretixFeatureConfig pretixFeatureConfig, PretixApiConfig pretixApiConfig, ProductService productService, QuestionService questionService, PretixBookingService pretixBookingService) {
+    public PreloadPretixDataRunner(PretixFeatureConfig pretixFeatureConfig, PretixApiConfig pretixApiConfig, ProductService productService, QuestionService questionService, PretixBookingService pretixBookingService, PretixApiEventService pretixApiEventService) {
         this.pretixFeatureConfig = pretixFeatureConfig;
         this.pretixApiConfig = pretixApiConfig;
         this.productService = productService;
         this.questionService = questionService;
         this.pretixBookingService = pretixBookingService;
+        this.pretixApiEventService = pretixApiEventService;
     }
 
     public static void main(String[] args) {
@@ -36,23 +40,30 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments arg0) {
-        //TODO Preload all, not only configured
-        if(pretixApiConfig.eventList() != null) {
-//            pretixApiConfig.eventList().forEach(this::preload);
+
+        if(!pretixFeatureConfig.preloadEventDataEnabled()) {
+            return;
         }
+
+        logSeparator("Starting Preload");
+
+        pretixApiEventService.fetchAllEvents()
+                .stream()
+                .filter(EventDTO::live)
+                .forEach(eventDTO -> preload(pretixApiConfig.organizer(), eventDTO.slug()));
+
+        logSeparator("Preload complete");
     }
 
-    private void preload(String organizer, String event) {
-        if(pretixFeatureConfig.preloadAllExceptOrdersEnabled()) {
-            logSeparator("STARTING PRELOAD (NON-ORDERS)");
-            questionService.fetchAll(event);
-            productService.fetchAll(event);
-            logSeparator("PRELOAD COMPLETE (NON-ORDERS)");
-        }
+    private void preload(String organizer, String eventSlug) {
+
+        log.info("   Preloading event={}", eventSlug);
+
+        questionService.fetchAll(eventSlug);
+        productService.fetchAll(eventSlug);
         if(pretixFeatureConfig.preloadOrdersEnabled()) {
-            logSeparator("STARTING PRELOAD (ORDERS)");
-            pretixBookingService.fetchAll(organizer, event);
-            logSeparator("PRELOAD COMPLETE (ORDERS)");
+            log.info("   Preloading orders for event={}", eventSlug);
+            pretixBookingService.fetchAll(organizer, eventSlug);
         }
     }
 
