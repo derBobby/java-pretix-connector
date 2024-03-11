@@ -1,7 +1,6 @@
 package eu.planlos.javapretixconnector.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import eu.planlos.javapretixconnector.TestContextConfiguration;
 import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -10,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -29,14 +28,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * https://www.baeldung.com/integration-testing-in-spring
  */
 @SpringBootTest
-@ContextConfiguration(classes = { TestContextConfiguration.class })
+@WebAppConfiguration
 class PretixWebhookControllerIT {
 
     @Autowired
     private WebApplicationContext webApplicationContext;
 
     private MockMvc mockMvc;
-    ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @BeforeEach
     public void setup() {
@@ -55,14 +54,13 @@ class PretixWebhookControllerIT {
     @Test
     public void orderApprovedHook_createsAccount() throws Exception {
         String hookJson = mapper.writeValueAsString(orderApprovedHook());
-        MvcResult mvcResult = this.mockMvc.perform(
-                post(URL_WEBHOOK)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(hookJson))
+        this.mockMvc.perform(
+                        post(URL_WEBHOOK)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(hookJson))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn();
-
-        //TODO 404 not leading to error here. This acceptable? 500 from server should result in error...
     }
 
     /*
