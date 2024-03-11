@@ -5,6 +5,7 @@ import eu.planlos.javapretixconnector.config.PretixApiConfig;
 import eu.planlos.javapretixconnector.model.PretixId;
 import eu.planlos.javapretixconnector.model.dto.list.ItemsDTO;
 import eu.planlos.javapretixconnector.model.dto.single.ItemDTO;
+import eu.planlos.javaspringwebutilities.web.WebClientRetryFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -40,7 +41,10 @@ public class PretixApiItemService extends PretixApiService {
                 .uri(itemListUri(event))
                 .retrieve()
                 .bodyToMono(ItemsDTO.class)
-                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
+                .retryWhen(Retry
+                        .fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval()))
+                        .filter(WebClientRetryFilter::shouldRetry)
+                )
                 .doOnError(error -> log.error("Message fetching all items from Pretix API: {}", error.getMessage()))
                 .block();
 
@@ -64,7 +68,10 @@ public class PretixApiItemService extends PretixApiService {
                 .uri(specificItemUri(event, itemId.getIdValue()))
                 .retrieve()
                 .bodyToMono(ItemDTO.class)
-                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
+                .retryWhen(Retry
+                        .fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval()))
+                        .filter(WebClientRetryFilter::shouldRetry)
+                )
                 .doOnError(error -> log.error("Message fetching item={} from Pretix API: {}", itemId, error.getMessage()))
                 .block();
         if (itemDTO != null) {

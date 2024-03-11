@@ -4,6 +4,7 @@ import eu.planlos.javapretixconnector.config.PretixApiConfig;
 import eu.planlos.javapretixconnector.model.PretixException;
 import eu.planlos.javapretixconnector.model.dto.list.EventsDTO;
 import eu.planlos.javapretixconnector.model.dto.single.EventDTO;
+import eu.planlos.javaspringwebutilities.web.WebClientRetryFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,10 @@ public class PretixApiEventService extends PretixApiService {
                 .uri(eventListUri())
                 .retrieve()
                 .bodyToMono(EventsDTO.class)
-                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
+                .retryWhen(Retry
+                        .fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval()))
+                        .filter(WebClientRetryFilter::shouldRetry)
+                )
                 .doOnError(error -> log.error("Message fetching all events from Pretix API: {}", error.getMessage()))
                 .block();
 

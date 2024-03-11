@@ -70,7 +70,10 @@ public class PretixApiItemCategoryService extends PretixApiService {
                 .uri(specificItemCategoryUri(event, itemCategoryId.getIdValue()))
                 .retrieve()
                 .bodyToMono(ItemCategoryDTO.class)
-                .retryWhen(Retry.fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval())))
+                .retryWhen(Retry
+                        .fixedDelay(config.retryCount(), Duration.ofSeconds(config.retryInterval()))
+                        .filter(WebClientRetryFilter::shouldRetry)
+                )
                 .doOnError(error -> log.error("Message fetching item category={} from Pretix API: {}", itemCategoryId, error.getMessage()))
                 .block();
         if (itemCategoryDTO != null) {
