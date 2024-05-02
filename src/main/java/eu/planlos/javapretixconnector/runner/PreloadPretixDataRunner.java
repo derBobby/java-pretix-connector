@@ -41,7 +41,10 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments arg0) {
 
+        log.info("Running reload runner");
+
         if(!pretixFeatureConfig.preloadEventDataEnabled()) {
+            log.info("Preload not active.");
             return;
         }
 
