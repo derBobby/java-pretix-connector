@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Application" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+  <configuration default="false" name="PretixConnector" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
     <option name="ACTIVE_PROFILES" value="java-pretix-connector-dev" />
     <module name="java-pretix-connector" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="eu.planlos.javapretixconnector.Application" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="eu.planlos.javapretixconnector.PretixConnector" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="eu.planlos.javapretixconnector.*" />
