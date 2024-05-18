@@ -10,10 +10,10 @@ import org.springframework.context.annotation.Profile;
 @Profile("java-pretix-connector-dev")
 @SpringBootApplication
 @ConfigurationPropertiesScan
-public class Application implements IPretixWebHookHandler{
+public class PretixConnector implements IPretixWebHookHandler{
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(PretixConnector.class, args);
     }
 
     @Override
