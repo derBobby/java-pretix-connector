@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Pretix Event Filters</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <script th:src="@{/webjars/axios/axios.min.js}"></script>
+</head>
+<body>
+<h1>Pretix Event Filters</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Action</th>
+        <th>Organizer</th>
+        <th>Event</th>
+        <th>Filter Map</th>
+        <th>Functions</th>
+    </tr>
+    </thead>
+    <tbody id="eventFilters">
+    <!-- Data will be injected here by JavaScript -->
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchEventFilters();
+    });
+
+    function fetchEventFilters() {
+        axios.get('/api/v1/filter')
+            .then(function (response) {
+                const eventFilters = response.data;
+                const tbody = document.getElementById('eventFilters');
+                tbody.innerHTML = '';
+
+                console.log('Fetched event filters:', eventFilters);
+
+                eventFilters.forEach(event => {
+                    const tr = document.createElement('tr');
+
+                    tr.innerHTML = `
+                            <td>${event.id}</td>
+                            <td>${event.action}</td>
+                            <td>${event.organizer}</td>
+                            <td>${event.event}</td>
+                            <td>
+                                <ul>
+                                    ${Object.entries(event['qna-list']).map(([key, value]) =>
+                        `<li>${key}: ${value.join(', ')}</li>`
+                    ).join('')}
+                                </ul>
+                            </td>
+                            <td>
+                                <a href="/api/v1/filter/${event.id}" class="button">View</a>
+                                <a href="/api/v1/filter/${event.id}/edit" class="button">Edit</a>
+                                <form onsubmit="return deleteEventFilter(${event.id});" style="display:inline;">
+                                    <input type="hidden" name="_method" value="delete"/>
+                                    <button type="submit" class="button">Delete</button>
+                                </form>
+                            </td>
+                        `;
+
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(function (error) {
+                console.error('There was an error fetching the event filters!', error);
+            });
+    }
+
+    function deleteEventFilter(id) {
+        if (!confirm('Are you sure you want to delete this filter?')) {
+            return false;
+        }
+
+        axios.delete(`/api/v1/filter/${id}`)
+            .then(function () {
+                fetchEventFilters(); // Refresh the list after deletion
+            })
+            .catch(function (error) {
+                console.error('There was an error deleting the event filter!', error);
+            });
+
+        return false; // Prevent form submission
+    }
+</script>
+</body>
+</html>
