@@ -239,6 +239,9 @@
         const event = document.getElementById('filterEvent').value;
         const filterMap = JSON.parse(document.getElementById('filterMap').value);
 
+
+        resetFormFields();
+
         // Define the request data
         const requestData = {
             action: action,
@@ -292,6 +295,27 @@
             });
     }
 
+    // Function to reset form fields and remove error messages
+    // Remove any existing error messages and the 'is-invalid' class from input fields
+    function resetFormFields() {
+        // Remove any existing error messages and the 'is-invalid' class from input fields
+        document.querySelectorAll('.is-invalid').forEach(function (input) {
+            input.classList.remove('is-invalid');
+            const errorMessage = input.parentElement.querySelector('.invalid-feedback');
+            if (errorMessage) {
+                errorMessage.remove();
+            }
+        });
+    }
+
+    // Function to handle modal close event
+    function handleModalClose() {
+        // Reset form fields and error messages when modal is closed
+        resetFormFields();
+    }
+
+    // Event listener for modal close event
+    document.getElementById('showDetailsFilterModal').addEventListener('hidden.bs.modal', handleModalClose);
 
 </script>
 </body>
