@@ -264,9 +264,34 @@
                 bootstrap.Modal.getInstance(document.getElementById('showDetailsFilterModal')).hide();
             })
             .catch(function (error) {
-                console.error('There was an error saving the filter!', error);
+                if (error.response) {
+                    // The server returned an error response
+                    if (error.response.status === 400) {
+                        // Bad request - handle error messages for each field
+                        const errors = error.response.data;
+
+                        // Map error messages to input fields
+                        Object.keys(errors).forEach(function (fieldName) {
+                            const errorMessage = errors[fieldName];
+                            const inputField = document.getElementById(`filter${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
+                            // Display the error message near the input field
+                            inputField.insertAdjacentHTML('afterend', `<div class="invalid-feedback">${errorMessage}</div>`);
+                            inputField.classList.add('is-invalid');
+                        });
+                    } else {
+                        // Other server errors - log the error
+                        console.error('Server Error:', error.response.data);
+                    }
+                } else if (error.request) {
+                    // The request was made but no response was received
+                    console.error('No response received:', error.request);
+                } else {
+                    // Something else went wrong
+                    console.error('Error:', error.message);
+                }
             });
     }
+
 
 </script>
 </body>
