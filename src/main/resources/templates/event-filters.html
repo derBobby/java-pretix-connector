@@ -3,25 +3,27 @@
 <head>
     <title>Pretix Event Filters</title>
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
-    <script th:src="@{/webjars/axios/axios.min.js}"></script>
+    <script th:src="@{/webjars/axios/dist/axios.min.js}"></script>
 </head>
 <body>
-<h1>Pretix Event Filters</h1>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Action</th>
-        <th>Organizer</th>
-        <th>Event</th>
-        <th>Filter Map</th>
-        <th>Functions</th>
-    </tr>
-    </thead>
-    <tbody id="eventFilters">
-    <!-- Data will be injected here by JavaScript -->
-    </tbody>
-</table>
+<div class="container mt-5">
+    <h1 class="mb-4">Pretix Event Filters</h1>
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+        <tr>
+            <th>ID</th>
+            <th>Action</th>
+            <th>Organizer</th>
+            <th>Event</th>
+            <th>Filter Map</th>
+            <th>Functions</th>
+        </tr>
+        </thead>
+        <tbody id="eventFilters">
+        <!-- Data will be injected here by JavaScript -->
+        </tbody>
+    </table>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -53,11 +55,11 @@
                                 </ul>
                             </td>
                             <td>
-                                <a href="/api/v1/filter/${event.id}" class="button">View</a>
-                                <a href="/api/v1/filter/${event.id}/edit" class="button">Edit</a>
+                                <a href="/api/v1/filter/${event.id}" class="btn btn-primary btn-sm">View</a>
+                                <a href="/api/v1/filter/${event.id}/edit" class="btn btn-secondary btn-sm">Edit</a>
                                 <form onsubmit="return deleteEventFilter(${event.id});" style="display:inline;">
                                     <input type="hidden" name="_method" value="delete"/>
-                                    <button type="submit" class="button">Delete</button>
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                                 </form>
                             </td>
                         `;
