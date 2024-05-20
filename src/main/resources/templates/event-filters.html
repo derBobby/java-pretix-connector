@@ -50,7 +50,7 @@
                     <div class="mb-3">
                         <label for="filterAction" class="form-label">Action</label>
                         <select class="form-control" id="filterAction" required>
-                            <!-- Options will be dynamically populated -->
+                            <option th:each="action : ${pretixSupportedActions}" th:value="${action.action}" th:text="${action.description}"></option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -81,18 +81,16 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <input type="hidden" id="deleteConfirmationId"> <!-- Hidden input field to store the ID -->
+                <input type="hidden" id="deleteConfirmationId">
                 <p>Are you sure you want to delete this filter?</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <!-- Pass the id directly to the confirmDelete function -->
                 <button type="button" class="btn btn-danger" onclick="confirmDelete()" data-bs-dismiss="modal">Delete</button>
             </div>
         </div>
     </div>
 </div>
-
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -105,26 +103,6 @@
         });
     });
 
-    // Enum values for actions
-    const PretixSupportedActions = [
-        { action: "pretix.event.order.placed", description: "New Booking" },
-        { action: "pretix.event.order.placed.require_approval", description: "Booking needs approval" },
-        { action: "pretix.event.order.approved", description: "Booking was approved" },
-        { action: "pretix.event.order.modified", description: "Booking changed" },
-        { action: "pretix.event.order.canceled", description: "Booking Cancelled" }
-    ];
-
-    function populateActionDropdown() {
-        const filterActionSelect = document.getElementById('filterAction');
-        filterActionSelect.innerHTML = ''; // Clear existing options
-        PretixSupportedActions.forEach(action => {
-            const option = document.createElement('option');
-            option.value = action.action;
-            option.text = action.description;
-            filterActionSelect.appendChild(option);
-        });
-    }
-
     function fetchEventFilters() {
         axios.get('/api/v1/filter')
             .then(function (response) {
@@ -136,27 +114,27 @@
                     const tr = document.createElement('tr');
 
                     tr.innerHTML = `
-                    <td>${event.id}</td>
-                    <td>${event.action}</td>
-                    <td>${event.organizer}</td>
-                    <td>${event.event}</td>
-                    <td>
-                        ${Object.entries(event['qna-list']).map(([key, value]) =>
+                        <td>${event.id}</td>
+                        <td>${event.action}</td>
+                        <td>${event.organizer}</td>
+                        <td>${event.event}</td>
+                        <td>
+                            ${Object.entries(event['qna-list']).map(([key, value]) =>
                         `<p>${key}: ${value.join(', ')}</p>`
                     ).join('')}
-                    </td>
-                    <td>
-                        <button onclick="openModal(${event.id}, 'view')" class="btn btn-primary btn-sm">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button onclick="openModal(${event.id}, 'edit')" class="btn btn-secondary btn-sm">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="showDeleteConfirmation(${event.id})" class="btn btn-danger btn-sm">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </td>
-                `;
+                        </td>
+                        <td>
+                            <button onclick="openModal(${event.id}, 'view')" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="openModal(${event.id}, 'edit')" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="showDeleteConfirmation(${event.id})" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    `;
 
                     tbody.appendChild(tr);
                 });
@@ -186,7 +164,6 @@
     }
 
     function openModal(id, mode) {
-        populateActionDropdown();
         if (id) {
             axios.get(`/api/v1/filter/${id}`)
                 .then(function (response) {
@@ -237,7 +214,7 @@
         const formElements = document.querySelectorAll('#saveFilterForm input, #saveFilterForm textarea, #saveFilterForm select');
         formElements.forEach(element => {
             element.readOnly = isReadOnly;
-            element.disabled = isReadOnly; // Disable dropdown when readOnly
+            element.disabled = isReadOnly;
         });
     }
 
@@ -273,15 +250,12 @@
                 if (error.response) {
                     if (error.response.status === 400) {
                         const errors = error.response.data;
+
                         Object.keys(errors).forEach(function (fieldName) {
                             const errorMessage = errors[fieldName];
                             const inputField = document.getElementById(`filter${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
-                            if (inputField) {
-                                if (!inputField.classList.contains('is-invalid')) {
-                                    inputField.insertAdjacentHTML('afterend', `<div class="invalid-feedback">${errorMessage}</div>`);
-                                }
-                                inputField.classList.add('is-invalid');
-                            }
+                            inputField.insertAdjacentHTML('afterend', `<div class="invalid-feedback">${errorMessage}</div>`);
+                            inputField.classList.add('is-invalid');
                         });
                     } else {
                         console.error('Server Error:', error.response.data);
@@ -309,7 +283,6 @@
     }
 
     document.getElementById('showDetailsFilterModal').addEventListener('hidden.bs.modal', handleModalClose);
-
 </script>
 </body>
 </html>
