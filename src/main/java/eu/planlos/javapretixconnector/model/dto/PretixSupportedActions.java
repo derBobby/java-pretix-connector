@@ -7,11 +7,11 @@ import java.util.Arrays;
 
 @Getter
 public enum PretixSupportedActions {
-    ORDER_PLACED("pretix.event.order.placed", "New"),
-    ORDER_NEED_APPROVAL("pretix.event.order.placed.require_approval", "Need OK"),
-    ORDER_APPROVED("pretix.event.order.approved", "Got OK"),
-    ORDER_CHANGED("pretix.event.order.modified", "Changed"),
-    ORDER_CANCELED("pretix.event.order.canceled", "Cancelled");
+    ORDER_PLACED("pretix.event.order.placed", "New Booking"),
+    ORDER_NEED_APPROVAL("pretix.event.order.placed.require_approval", "Booking needs approval"),
+    ORDER_APPROVED("pretix.event.order.approved", "Booking was approved"),
+    ORDER_CHANGED("pretix.event.order.modified", "Booking changed"),
+    ORDER_CANCELED("pretix.event.order.canceled", "Booking Cancelled");
 
     private final String action;
     private final String description;
