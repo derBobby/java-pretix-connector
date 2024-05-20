@@ -49,7 +49,9 @@
                     <input type="hidden" id="filterId">
                     <div class="mb-3">
                         <label for="filterAction" class="form-label">Action</label>
-                        <input type="text" class="form-control" id="filterAction" required>
+                        <select class="form-control" id="filterAction" required>
+                            <!-- Options will be dynamically populated -->
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="filterOrganizer" class="form-label">Organizer</label>
@@ -103,6 +105,26 @@
         });
     });
 
+    // Enum values for actions
+    const PretixSupportedActions = [
+        { action: "pretix.event.order.placed", description: "New Booking" },
+        { action: "pretix.event.order.placed.require_approval", description: "Booking needs approval" },
+        { action: "pretix.event.order.approved", description: "Booking was approved" },
+        { action: "pretix.event.order.modified", description: "Booking changed" },
+        { action: "pretix.event.order.canceled", description: "Booking Cancelled" }
+    ];
+
+    function populateActionDropdown() {
+        const filterActionSelect = document.getElementById('filterAction');
+        filterActionSelect.innerHTML = ''; // Clear existing options
+        PretixSupportedActions.forEach(action => {
+            const option = document.createElement('option');
+            option.value = action.action;
+            option.text = action.description;
+            filterActionSelect.appendChild(option);
+        });
+    }
+
     function fetchEventFilters() {
         axios.get('/api/v1/filter')
             .then(function (response) {
@@ -114,27 +136,27 @@
                     const tr = document.createElement('tr');
 
                     tr.innerHTML = `
-                        <td>${event.id}</td>
-                        <td>${event.action}</td>
-                        <td>${event.organizer}</td>
-                        <td>${event.event}</td>
-                        <td>
-                            ${Object.entries(event['qna-list']).map(([key, value]) =>
+                    <td>${event.id}</td>
+                    <td>${event.action}</td>
+                    <td>${event.organizer}</td>
+                    <td>${event.event}</td>
+                    <td>
+                        ${Object.entries(event['qna-list']).map(([key, value]) =>
                         `<p>${key}: ${value.join(', ')}</p>`
                     ).join('')}
-                        </td>
-                        <td>
-                            <button onclick="openModal(${event.id}, 'view')" class="btn btn-primary btn-sm">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button onclick="openModal(${event.id}, 'edit')" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="showDeleteConfirmation(${event.id})" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    `;
+                    </td>
+                    <td>
+                        <button onclick="openModal(${event.id}, 'view')" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="openModal(${event.id}, 'edit')" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="showDeleteConfirmation(${event.id})" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                `;
 
                     tbody.appendChild(tr);
                 });
@@ -145,39 +167,27 @@
     }
 
     function showDeleteConfirmation(id) {
-        // Store the ID in a hidden input field in the modal
         document.getElementById('deleteConfirmationId').value = id;
-        // Show the modal
         new bootstrap.Modal(document.getElementById('deleteConfirmationModal')).show();
     }
 
-    // Function to handle confirmed deletion
     function confirmDelete() {
-        // Retrieve the ID from the hidden input field in the modal
         const id = document.getElementById('deleteConfirmationId').value;
 
-        // Send HTTP DELETE request to delete the filter
         axios.delete(`/api/v1/filter/${id}`)
             .then(function () {
-                // Log success message
                 console.log('Filter deleted successfully');
-
-                // Close modal after deletion
-                new bootstrap.Modal(document.getElementById('deleteConfirmationModal')).hide();
-
-                // Optionally, you can refresh the table after deletion
+                bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal')).hide();
                 fetchEventFilters();
-
             })
             .catch(function (error) {
-                // Log error message
                 console.error('Error deleting filter:', error);
             });
     }
 
     function openModal(id, mode) {
+        populateActionDropdown();
         if (id) {
-            // Fetch filter details if ID is provided
             axios.get(`/api/v1/filter/${id}`)
                 .then(function (response) {
                     const filter = response.data;
@@ -206,7 +216,6 @@
                     console.error('There was an error fetching the filter details!', error);
                 });
         } else {
-            // Open an empty modal for creating a new filter
             document.getElementById('filterId').value = '';
             document.getElementById('filterAction').value = '';
             document.getElementById('filterOrganizer').value = '';
@@ -216,19 +225,19 @@
             const modalLabel = document.getElementById('showDetailsFilterModalLabel');
             const submitButton = document.querySelector('#saveFilterForm button[type="submit"]');
 
-            modalLabel.innerText = 'Add Filter'; // Change modal title
-            submitButton.style.display = 'block'; // Show submit button
-            setFormReadOnly(false); // Enable form fields
+            modalLabel.innerText = 'Add Filter';
+            submitButton.style.display = 'block';
+            setFormReadOnly(false);
 
             new bootstrap.Modal(document.getElementById('showDetailsFilterModal')).show();
         }
     }
 
-
     function setFormReadOnly(isReadOnly) {
-        const formElements = document.querySelectorAll('#saveFilterForm input, #saveFilterForm textarea');
+        const formElements = document.querySelectorAll('#saveFilterForm input, #saveFilterForm textarea, #saveFilterForm select');
         formElements.forEach(element => {
             element.readOnly = isReadOnly;
+            element.disabled = isReadOnly; // Disable dropdown when readOnly
         });
     }
 
@@ -239,10 +248,8 @@
         const event = document.getElementById('filterEvent').value;
         const filterMap = JSON.parse(document.getElementById('filterMap').value);
 
-
         resetFormFields();
 
-        // Define the request data
         const requestData = {
             action: action,
             organizer: organizer,
@@ -250,13 +257,9 @@
             'qna-list': filterMap
         };
 
-        // Define the URL for the request
         const url = id ? `/api/v1/filter/${id}` : `/api/v1/filter`;
-
-        // Define the HTTP method for the request
         const method = id ? 'PUT' : 'POST';
 
-        // Send the request
         axios({
             method: method,
             url: url,
@@ -268,37 +271,30 @@
             })
             .catch(function (error) {
                 if (error.response) {
-                    // The server returned an error response
                     if (error.response.status === 400) {
-                        // Bad request - handle error messages for each field
                         const errors = error.response.data;
-
-                        // Map error messages to input fields
                         Object.keys(errors).forEach(function (fieldName) {
                             const errorMessage = errors[fieldName];
                             const inputField = document.getElementById(`filter${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
-                            // Display the error message near the input field
-                            inputField.insertAdjacentHTML('afterend', `<div class="invalid-feedback">${errorMessage}</div>`);
-                            inputField.classList.add('is-invalid');
+                            if (inputField) {
+                                if (!inputField.classList.contains('is-invalid')) {
+                                    inputField.insertAdjacentHTML('afterend', `<div class="invalid-feedback">${errorMessage}</div>`);
+                                }
+                                inputField.classList.add('is-invalid');
+                            }
                         });
                     } else {
-                        // Other server errors - log the error
                         console.error('Server Error:', error.response.data);
                     }
                 } else if (error.request) {
-                    // The request was made but no response was received
                     console.error('No response received:', error.request);
                 } else {
-                    // Something else went wrong
                     console.error('Error:', error.message);
                 }
             });
     }
 
-    // Function to reset form fields and remove error messages
-    // Remove any existing error messages and the 'is-invalid' class from input fields
     function resetFormFields() {
-        // Remove any existing error messages and the 'is-invalid' class from input fields
         document.querySelectorAll('.is-invalid').forEach(function (input) {
             input.classList.remove('is-invalid');
             const errorMessage = input.parentElement.querySelector('.invalid-feedback');
@@ -308,13 +304,10 @@
         });
     }
 
-    // Function to handle modal close event
     function handleModalClose() {
-        // Reset form fields and error messages when modal is closed
         resetFormFields();
     }
 
-    // Event listener for modal close event
     document.getElementById('showDetailsFilterModal').addEventListener('hidden.bs.modal', handleModalClose);
 
 </script>
