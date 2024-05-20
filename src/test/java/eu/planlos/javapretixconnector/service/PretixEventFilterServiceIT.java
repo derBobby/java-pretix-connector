@@ -35,8 +35,8 @@ public class PretixEventFilterServiceIT {
 
     @Test
     public void createWithGivenId_throwsException() {
-        PretixEventFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK(1L);
-        PretixEventFilter updatePretixEventFilter = new PretixEventFilter(pretixEventFilterUpdateDTO);
+        PretixEventFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK();
+        PretixEventFilter updatePretixEventFilter = new PretixEventFilter(1L, pretixEventFilterUpdateDTO);
         assertThrows(IllegalArgumentException.class, () -> pretixEventFilterService.addFilter(updatePretixEventFilter));
     }
 
@@ -66,8 +66,8 @@ public class PretixEventFilterServiceIT {
         pretixEventFilterService.addFilter(originalpretixEventFilter);
         pretixEventFilterRepository.flush();
 
-        PretixEventFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK(originalpretixEventFilter.getId());
-        PretixEventFilter updatePretixEventFilter = new PretixEventFilter(pretixEventFilterUpdateDTO);
+        PretixEventFilterUpdateDTO pretixEventFilterUpdateDTO = updateFilterOK();
+        PretixEventFilter updatePretixEventFilter = new PretixEventFilter(originalpretixEventFilter.getId(), pretixEventFilterUpdateDTO);
         pretixEventFilterService.updateFilter(updatePretixEventFilter);
         pretixEventFilterRepository.flush();
 

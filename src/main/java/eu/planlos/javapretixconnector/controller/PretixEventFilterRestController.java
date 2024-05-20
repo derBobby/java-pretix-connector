@@ -75,9 +75,9 @@ public class PretixEventFilterRestController {
     }
 
     //TODO test
-    @PutMapping
-    public ResponseEntity<PretixEventFilter> put(@Valid @RequestBody PretixEventFilterUpdateDTO pretixEventFilterDTO) {
-        PretixEventFilter pretixEventFilter = new PretixEventFilter(pretixEventFilterDTO);
+    @PutMapping("/{id}")
+    public ResponseEntity<PretixEventFilter> put(@Valid @RequestBody PretixEventFilterUpdateDTO pretixEventFilterDTO, @PathVariable("id") Long id) {
+        PretixEventFilter pretixEventFilter = new PretixEventFilter(id, pretixEventFilterDTO);
         log.info("Update filter={}", pretixEventFilter);
         pretixEventFilterService.updateFilter(pretixEventFilter);
         log.info("Updated filter id={}", pretixEventFilter.getId());

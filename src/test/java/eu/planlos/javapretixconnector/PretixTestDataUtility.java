@@ -116,9 +116,8 @@ public class PretixTestDataUtility {
      * Must correspont to filterOK()
      * @return filter update dto
      */
-    public static PretixEventFilterUpdateDTO updateFilterOK(Long id) {
+    public static PretixEventFilterUpdateDTO updateFilterOK() {
         return new PretixEventFilterUpdateDTO(
-                id,
                 ORDER_APPROVED.getAction(),
                 ORGANIZER,
                 "UPDATED_EVENT",

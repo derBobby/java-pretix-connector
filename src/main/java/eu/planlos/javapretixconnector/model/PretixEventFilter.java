@@ -99,7 +99,7 @@ public final class PretixEventFilter {
         this(dto.action(), dto.organizer(), dto.event(), dto.filterMap());
     }
 
-    public PretixEventFilter(PretixEventFilterUpdateDTO dto) {
-        this(dto.id(), dto.action(), dto.organizer(), dto.event(), dto.filterMap());
+    public PretixEventFilter(Long id, PretixEventFilterUpdateDTO dto) {
+        this(id, dto.action(), dto.organizer(), dto.event(), dto.filterMap());
     }
 }

@@ -223,11 +223,19 @@
         const action = document.getElementById('filterAction').value;
         const organizer = document.getElementById('filterOrganizer').value;
         const event = document.getElementById('filterEvent').value;
-        const filterMap = JSON.parse(document.getElementById('filterMap').value);
+        let filterMap;
 
         resetFormFields();
 
+        try {
+            filterMap = JSON.parse(document.getElementById('filterMap').value);
+        } catch (e) {
+            displayJsonError('Invalid JSON format in Filter Map');
+            return;
+        }
+
         const requestData = {
+            id: id,
             action: action,
             organizer: organizer,
             event: event,
@@ -250,13 +258,7 @@
                 if (error.response) {
                     if (error.response.status === 400) {
                         const errors = error.response.data;
-
-                        Object.keys(errors).forEach(function (fieldName) {
-                            const errorMessage = errors[fieldName];
-                            const inputField = document.getElementById(`filter${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
-                            inputField.insertAdjacentHTML('afterend', `<div class="invalid-feedback">${errorMessage}</div>`);
-                            inputField.classList.add('is-invalid');
-                        });
+                        handleFormErrors(errors);
                     } else {
                         console.error('Server Error:', error.response.data);
                     }
@@ -266,6 +268,29 @@
                     console.error('Error:', error.message);
                 }
             });
+    }
+
+    function displayJsonError(errorMessage) {
+        const inputField = document.getElementById('filterMap');
+        inputField.classList.add('is-invalid');
+        const invalidFeedback = document.createElement('div');
+        invalidFeedback.className = 'invalid-feedback';
+        invalidFeedback.textContent = errorMessage;
+        inputField.parentElement.appendChild(invalidFeedback);
+    }
+
+    function handleFormErrors(errors) {
+        Object.keys(errors).forEach(function (fieldName) {
+            const errorMessage = errors[fieldName];
+            const inputField = document.getElementById(`filter${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
+
+            // Add error message
+            inputField.classList.add('is-invalid');
+            const invalidFeedback = document.createElement('div');
+            invalidFeedback.className = 'invalid-feedback';
+            invalidFeedback.textContent = errorMessage;
+            inputField.parentElement.appendChild(invalidFeedback);
+        });
     }
 
     function resetFormFields() {
