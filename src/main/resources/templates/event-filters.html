@@ -40,12 +40,12 @@
 <div class="modal fade" id="showDetailsFilterModal" tabindex="-1" aria-labelledby="showDetailsFilterModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="showDetailsFilterModalLabel">Edit Filter</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="saveFilterForm">
+            <form id="saveFilterForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showDetailsFilterModalLabel">Edit Filter</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
                     <input type="hidden" id="filterId">
                     <div class="mb-3">
                         <label for="filterAction" class="form-label">Action</label>
@@ -62,21 +62,22 @@
                         <input type="text" class="form-control" id="filterEvent" required>
                     </div>
                     <div class="mb-3">
-                        <label for="filterMap" class="form-label">Filter Map</label>
+                        <label class="form-label">Filter Map</label>
                         <div id="filterMapContainer">
                             <!-- Dynamic rows will be added here -->
                         </div>
-                        <button type="button" class="btn btn-success btn-sm mt-2" onclick="addFilterRow()">
+                        <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="addFilterRow()">
                             <i class="fas fa-plus"></i> Add Row
                         </button>
                     </div>
-                    <button type="submit" class="btn btn-primary float-end">Save changes</button>
-                </form>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
-
 
 <!-- Modal -->
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
@@ -329,18 +330,11 @@ function resetFormFields() {
             errorMessage.remove();
         }
     });
-
-    // Reset filter map rows
-    const filterMapContainer = document.getElementById('filterMapContainer');
-    filterMapContainer.innerHTML = '';
-    addFilterRow(); // Add an initial row
 }
 
 function handleModalClose() {
     resetFormFields();
 }
-
-
 
 function addFilterRow(key = '', values = []) {
     const filterMapContainer = document.getElementById('filterMapContainer');
@@ -414,14 +408,16 @@ function removeFilterRow(button) {
 
 function parseFilterMap() {
     const filterMapContainer = document.getElementById('filterMapContainer');
-    const rows = filterMapContainer.querySelectorAll('.row');
+    const rows = filterMapContainer.querySelectorAll('.filter-map-row');
     const filterMap = {};
 
     rows.forEach(row => {
-        const key = row.querySelector('input[placeholder="Key"]').value.trim();
-        const value = row.querySelector('input[placeholder="Value (comma-separated)"]').value.trim();
-        if (key && value) {
-            filterMap[key] = value.split(',').map(v => v.trim());
+        const keyInput = row.querySelector('input[name^="filterMap["][name$="][key]"]');
+        const valueInputs = row.querySelectorAll('.value-input-wrapper input[name="value"]');
+        const key = keyInput.value.trim();
+        const values = Array.from(valueInputs).map(input => input.value.trim());
+        if (key && values.length > 0) {
+            filterMap[key] = values;
         }
     });
 
