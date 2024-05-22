@@ -63,7 +63,23 @@
                     </div>
                     <div class="mb-3">
                         <label for="filterMap" class="form-label">Filter Map</label>
-                        <textarea class="form-control" id="filterMap" rows="3" required></textarea>
+                        <div id="filterMapContainer">
+                            <div class="row mb-2">
+                                <div class="col-5">
+                                    <input type="text" class="form-control" placeholder="Key">
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" placeholder="Value (comma-separated)">
+                                </div>
+                                <div class="col-1">
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeFilterRow(this)">
+                                        -
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success btn-sm" onclick="addFilterRow()">Add Row</button>
+
                     </div>
                     <button type="submit" class="btn btn-primary float-end">Save changes</button>
                 </form>
@@ -172,7 +188,9 @@
                     document.getElementById('filterAction').value = filter.action;
                     document.getElementById('filterOrganizer').value = filter.organizer;
                     document.getElementById('filterEvent').value = filter.event;
-                    document.getElementById('filterMap').value = JSON.stringify(filter['qna-list'], null, 2);
+
+                    // Populate filterMap rows
+                    populateFilterMap(filter['qna-list']);
 
                     const modalLabel = document.getElementById('showDetailsFilterModalLabel');
                     const submitButton = document.querySelector('#saveFilterForm button[type="submit"]');
@@ -197,7 +215,9 @@
             document.getElementById('filterAction').value = '';
             document.getElementById('filterOrganizer').value = '';
             document.getElementById('filterEvent').value = '';
-            document.getElementById('filterMap').value = '';
+
+            // Clear filterMap rows
+            populateFilterMap({});
 
             const modalLabel = document.getElementById('showDetailsFilterModalLabel');
             const submitButton = document.querySelector('#saveFilterForm button[type="submit"]');
@@ -210,12 +230,31 @@
         }
     }
 
-    function setFormReadOnly(isReadOnly) {
-        const formElements = document.querySelectorAll('#saveFilterForm input, #saveFilterForm textarea, #saveFilterForm select');
-        formElements.forEach(element => {
-            element.readOnly = isReadOnly;
-            element.disabled = isReadOnly;
+    function populateFilterMap(filterMap) {
+        const filterMapContainer = document.getElementById('filterMapContainer');
+        filterMapContainer.innerHTML = ''; // Clear existing rows
+
+        if (filterMap && typeof filterMap === 'object') {
+            for (const [key, values] of Object.entries(filterMap)) {
+                addFilterRow(key, values.join(', '));
+            }
+        } else {
+            addFilterRow(); // Add an initial empty row if no data
+        }
+    }
+
+    function setFormReadOnly(readOnly) {
+        const formElements = document.querySelectorAll('#saveFilterForm input, #saveFilterForm select, #saveFilterForm textarea, #saveFilterForm button');
+        formElements.forEach(function (element) {
+            if (readOnly) {
+                element.setAttribute('disabled', 'disabled');
+            } else {
+                element.removeAttribute('disabled');
+            }
         });
+
+        // Enable the close button even in view mode
+        document.querySelector('.btn-close').removeAttribute('disabled');
     }
 
     function saveFilter() {
@@ -228,7 +267,7 @@
         resetFormFields();
 
         try {
-            filterMap = JSON.parse(document.getElementById('filterMap').value);
+            filterMap = parseFilterMap();
         } catch (e) {
             displayJsonError('Invalid JSON format in Filter Map');
             return;
@@ -271,12 +310,11 @@
     }
 
     function displayJsonError(errorMessage) {
-        const inputField = document.getElementById('filterMap');
-        inputField.classList.add('is-invalid');
+        const filterMapContainer = document.getElementById('filterMapContainer');
         const invalidFeedback = document.createElement('div');
-        invalidFeedback.className = 'invalid-feedback';
+        invalidFeedback.className = 'invalid-feedback d-block';
         invalidFeedback.textContent = errorMessage;
-        inputField.parentElement.appendChild(invalidFeedback);
+        filterMapContainer.appendChild(invalidFeedback);
     }
 
     function handleFormErrors(errors) {
@@ -301,10 +339,56 @@
                 errorMessage.remove();
             }
         });
+
+        // Reset filter map rows
+        const filterMapContainer = document.getElementById('filterMapContainer');
+        filterMapContainer.innerHTML = '';
+        addFilterRow(); // Add an initial row
     }
 
     function handleModalClose() {
         resetFormFields();
+    }
+
+    function addFilterRow(key = '', value = '') {
+        const filterMapContainer = document.getElementById('filterMapContainer');
+        const row = document.createElement('div');
+        row.className = 'row mb-2';
+
+        row.innerHTML = `
+        <div class="col-5">
+            <input type="text" class="form-control" placeholder="Key" value="${key}">
+        </div>
+        <div class="col-6">
+            <input type="text" class="form-control" placeholder="Value (comma-separated)" value="${value}">
+        </div>
+        <div class="col-1">
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeFilterRow(this)">-</button>
+        </div>
+    `;
+
+        filterMapContainer.appendChild(row);
+    }
+
+    function removeFilterRow(button) {
+        const row = button.closest('.row');
+        row.remove();
+    }
+
+    function parseFilterMap() {
+        const filterMapContainer = document.getElementById('filterMapContainer');
+        const rows = filterMapContainer.querySelectorAll('.row');
+        const filterMap = {};
+
+        rows.forEach(row => {
+            const key = row.querySelector('input[placeholder="Key"]').value.trim();
+            const value = row.querySelector('input[placeholder="Value (comma-separated)"]').value.trim();
+            if (key && value) {
+                filterMap[key] = value.split(',').map(v => v.trim());
+            }
+        });
+
+        return filterMap;
     }
 
     document.getElementById('showDetailsFilterModal').addEventListener('hidden.bs.modal', handleModalClose);
