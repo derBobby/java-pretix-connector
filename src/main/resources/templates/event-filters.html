@@ -64,22 +64,11 @@
                     <div class="mb-3">
                         <label for="filterMap" class="form-label">Filter Map</label>
                         <div id="filterMapContainer">
-                            <div class="row mb-2">
-                                <div class="col-5">
-                                    <input type="text" class="form-control" placeholder="Key">
-                                </div>
-                                <div class="col-6">
-                                    <input type="text" class="form-control" placeholder="Value (comma-separated)">
-                                </div>
-                                <div class="col-1">
-                                    <button type="button" class="btn btn-danger btn-sm" onclick="removeFilterRow(this)">
-                                        -
-                                    </button>
-                                </div>
-                            </div>
+                            <!-- Dynamic rows will be added here -->
                         </div>
-                        <button type="button" class="btn btn-success btn-sm" onclick="addFilterRow()">Add Row</button>
-
+                        <button type="button" class="btn btn-success btn-sm mt-2" onclick="addFilterRow()">
+                            <i class="fas fa-plus"></i> Add Row
+                        </button>
                     </div>
                     <button type="submit" class="btn btn-primary float-end">Save changes</button>
                 </form>
@@ -87,6 +76,7 @@
         </div>
     </div>
 </div>
+
 
 <!-- Modal -->
 <div class="modal fade" id="deleteConfirmationModal" tabindex="-1" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
@@ -109,289 +99,336 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        fetchEventFilters();
+document.addEventListener('DOMContentLoaded', function () {
+    fetchEventFilters();
 
-        // Handle form submission
-        document.getElementById('saveFilterForm').addEventListener('submit', function (event) {
-            event.preventDefault();
-            saveFilter();
+    // Handle form submission
+    document.getElementById('saveFilterForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        saveFilter();
+    });
+});
+
+function fetchEventFilters() {
+    axios.get('/api/v1/filter')
+        .then(function (response) {
+            const eventFilters = response.data;
+            const tbody = document.getElementById('eventFilters');
+            tbody.innerHTML = '';
+
+            eventFilters.forEach(event => {
+                const tr = document.createElement('tr');
+
+                tr.innerHTML = `
+                    <td>${event.id}</td>
+                    <td>${event.action}</td>
+                    <td>${event.organizer}</td>
+                    <td>${event.event}</td>
+                    <td>
+                        ${Object.entries(event['qna-list']).map(([key, value]) =>
+                    `<p>${key}: ${value.join(', ')}</p>`
+                ).join('')}
+                    </td>
+                    <td>
+                        <button onclick="openModal(${event.id}, 'view')" class="btn btn-primary btn-sm">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="openModal(${event.id}, 'edit')" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="showDeleteConfirmation(${event.id})" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                `;
+
+                tbody.appendChild(tr);
+            });
+        })
+        .catch(function (error) {
+            console.error('There was an error fetching the event filters!', error);
         });
+}
+
+function showDeleteConfirmation(id) {
+    document.getElementById('deleteConfirmationId').value = id;
+    new bootstrap.Modal(document.getElementById('deleteConfirmationModal')).show();
+}
+
+function confirmDelete() {
+    const id = document.getElementById('deleteConfirmationId').value;
+
+    axios.delete(`/api/v1/filter/${id}`)
+        .then(function () {
+            console.log('Filter deleted successfully');
+            bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal')).hide();
+            fetchEventFilters();
+        })
+        .catch(function (error) {
+            console.error('Error deleting filter:', error);
+        });
+}
+
+function openModal(id, mode) {
+    if (id) {
+        axios.get(`/api/v1/filter/${id}`)
+            .then(function (response) {
+                const filter = response.data;
+                document.getElementById('filterId').value = filter.id;
+                document.getElementById('filterAction').value = filter.action;
+                document.getElementById('filterOrganizer').value = filter.organizer;
+                document.getElementById('filterEvent').value = filter.event;
+
+                // Populate filterMap rows
+                populateFilterMap(filter['qna-list']);
+
+                const modalLabel = document.getElementById('showDetailsFilterModalLabel');
+                const submitButton = document.querySelector('#saveFilterForm button[type="submit"]');
+
+                if (mode === 'view') {
+                    modalLabel.innerText = 'View Filter';
+                    submitButton.style.display = 'none';
+                    setFormReadOnly(true);
+                } else if (mode === 'edit') {
+                    modalLabel.innerText = 'Edit Filter';
+                    submitButton.style.display = 'block';
+                    setFormReadOnly(false);
+                }
+
+                new bootstrap.Modal(document.getElementById('showDetailsFilterModal')).show();
+            })
+            .catch(function (error) {
+                console.error('There was an error fetching the filter details!', error);
+            });
+    } else {
+        document.getElementById('filterId').value = '';
+        document.getElementById('filterAction').value = '';
+        document.getElementById('filterOrganizer').value = '';
+        document.getElementById('filterEvent').value = '';
+
+        // Clear filterMap rows
+        populateFilterMap({});
+
+        const modalLabel = document.getElementById('showDetailsFilterModalLabel');
+        const submitButton = document.querySelector('#saveFilterForm button[type="submit"]');
+
+        modalLabel.innerText = 'Add Filter';
+        submitButton.style.display = 'block';
+        setFormReadOnly(false);
+
+        new bootstrap.Modal(document.getElementById('showDetailsFilterModal')).show();
+    }
+}
+
+function populateFilterMap(filterMap) {
+    const filterMapContainer = document.getElementById('filterMapContainer');
+    filterMapContainer.innerHTML = ''; // Clear existing rows
+
+    if (filterMap && typeof filterMap === 'object') {
+        for (const [key, values] of Object.entries(filterMap)) {
+            addFilterRow(key, values);
+        }
+    } else {
+        addFilterRow(); // Add an initial empty row if no data
+    }
+}
+
+function setFormReadOnly(readOnly) {
+    const formElements = document.querySelectorAll('#saveFilterForm input, #saveFilterForm select, #saveFilterForm textarea, #saveFilterForm button');
+    formElements.forEach(function (element) {
+        if (readOnly) {
+            element.setAttribute('disabled', 'disabled');
+        } else {
+            element.removeAttribute('disabled');
+        }
     });
 
-    function fetchEventFilters() {
-        axios.get('/api/v1/filter')
-            .then(function (response) {
-                const eventFilters = response.data;
-                const tbody = document.getElementById('eventFilters');
-                tbody.innerHTML = '';
+    // Enable the close button even in view mode
+    document.querySelector('.btn-close').removeAttribute('disabled');
+}
 
-                eventFilters.forEach(event => {
-                    const tr = document.createElement('tr');
+function saveFilter() {
+    const id = document.getElementById('filterId').value;
+    const action = document.getElementById('filterAction').value;
+    const organizer = document.getElementById('filterOrganizer').value;
+    const event = document.getElementById('filterEvent').value;
+    let filterMap;
 
-                    tr.innerHTML = `
-                        <td>${event.id}</td>
-                        <td>${event.action}</td>
-                        <td>${event.organizer}</td>
-                        <td>${event.event}</td>
-                        <td>
-                            ${Object.entries(event['qna-list']).map(([key, value]) =>
-                        `<p>${key}: ${value.join(', ')}</p>`
-                    ).join('')}
-                        </td>
-                        <td>
-                            <button onclick="openModal(${event.id}, 'view')" class="btn btn-primary btn-sm">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button onclick="openModal(${event.id}, 'edit')" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button onclick="showDeleteConfirmation(${event.id})" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-                    `;
+    resetFormFields();
 
-                    tbody.appendChild(tr);
-                });
-            })
-            .catch(function (error) {
-                console.error('There was an error fetching the event filters!', error);
-            });
+    try {
+        filterMap = parseFilterMap();
+    } catch (e) {
+        displayJsonError('Invalid JSON format in Filter Map');
+        return;
     }
 
-    function showDeleteConfirmation(id) {
-        document.getElementById('deleteConfirmationId').value = id;
-        new bootstrap.Modal(document.getElementById('deleteConfirmationModal')).show();
-    }
+    const requestData = {
+        id: id,
+        action: action,
+        organizer: organizer,
+        event: event,
+        'qna-list': filterMap
+    };
 
-    function confirmDelete() {
-        const id = document.getElementById('deleteConfirmationId').value;
+    const url = id ? `/api/v1/filter/${id}` : `/api/v1/filter`;
+    const method = id ? 'PUT' : 'POST';
 
-        axios.delete(`/api/v1/filter/${id}`)
-            .then(function () {
-                console.log('Filter deleted successfully');
-                bootstrap.Modal.getInstance(document.getElementById('deleteConfirmationModal')).hide();
-                fetchEventFilters();
-            })
-            .catch(function (error) {
-                console.error('Error deleting filter:', error);
-            });
-    }
-
-    function openModal(id, mode) {
-        if (id) {
-            axios.get(`/api/v1/filter/${id}`)
-                .then(function (response) {
-                    const filter = response.data;
-                    document.getElementById('filterId').value = filter.id;
-                    document.getElementById('filterAction').value = filter.action;
-                    document.getElementById('filterOrganizer').value = filter.organizer;
-                    document.getElementById('filterEvent').value = filter.event;
-
-                    // Populate filterMap rows
-                    populateFilterMap(filter['qna-list']);
-
-                    const modalLabel = document.getElementById('showDetailsFilterModalLabel');
-                    const submitButton = document.querySelector('#saveFilterForm button[type="submit"]');
-
-                    if (mode === 'view') {
-                        modalLabel.innerText = 'View Filter';
-                        submitButton.style.display = 'none';
-                        setFormReadOnly(true);
-                    } else if (mode === 'edit') {
-                        modalLabel.innerText = 'Edit Filter';
-                        submitButton.style.display = 'block';
-                        setFormReadOnly(false);
-                    }
-
-                    new bootstrap.Modal(document.getElementById('showDetailsFilterModal')).show();
-                })
-                .catch(function (error) {
-                    console.error('There was an error fetching the filter details!', error);
-                });
-        } else {
-            document.getElementById('filterId').value = '';
-            document.getElementById('filterAction').value = '';
-            document.getElementById('filterOrganizer').value = '';
-            document.getElementById('filterEvent').value = '';
-
-            // Clear filterMap rows
-            populateFilterMap({});
-
-            const modalLabel = document.getElementById('showDetailsFilterModalLabel');
-            const submitButton = document.querySelector('#saveFilterForm button[type="submit"]');
-
-            modalLabel.innerText = 'Add Filter';
-            submitButton.style.display = 'block';
-            setFormReadOnly(false);
-
-            new bootstrap.Modal(document.getElementById('showDetailsFilterModal')).show();
-        }
-    }
-
-    function populateFilterMap(filterMap) {
-        const filterMapContainer = document.getElementById('filterMapContainer');
-        filterMapContainer.innerHTML = ''; // Clear existing rows
-
-        if (filterMap && typeof filterMap === 'object') {
-            for (const [key, values] of Object.entries(filterMap)) {
-                addFilterRow(key, values.join(', '));
-            }
-        } else {
-            addFilterRow(); // Add an initial empty row if no data
-        }
-    }
-
-    function setFormReadOnly(readOnly) {
-        const formElements = document.querySelectorAll('#saveFilterForm input, #saveFilterForm select, #saveFilterForm textarea, #saveFilterForm button');
-        formElements.forEach(function (element) {
-            if (readOnly) {
-                element.setAttribute('disabled', 'disabled');
-            } else {
-                element.removeAttribute('disabled');
-            }
-        });
-
-        // Enable the close button even in view mode
-        document.querySelector('.btn-close').removeAttribute('disabled');
-    }
-
-    function saveFilter() {
-        const id = document.getElementById('filterId').value;
-        const action = document.getElementById('filterAction').value;
-        const organizer = document.getElementById('filterOrganizer').value;
-        const event = document.getElementById('filterEvent').value;
-        let filterMap;
-
-        resetFormFields();
-
-        try {
-            filterMap = parseFilterMap();
-        } catch (e) {
-            displayJsonError('Invalid JSON format in Filter Map');
-            return;
-        }
-
-        const requestData = {
-            id: id,
-            action: action,
-            organizer: organizer,
-            event: event,
-            'qna-list': filterMap
-        };
-
-        const url = id ? `/api/v1/filter/${id}` : `/api/v1/filter`;
-        const method = id ? 'PUT' : 'POST';
-
-        axios({
-            method: method,
-            url: url,
-            data: requestData
+    axios({
+        method: method,
+        url: url,
+        data: requestData
+    })
+        .then(function () {
+            fetchEventFilters();
+            bootstrap.Modal.getInstance(document.getElementById('showDetailsFilterModal')).hide();
         })
-            .then(function () {
-                fetchEventFilters();
-                bootstrap.Modal.getInstance(document.getElementById('showDetailsFilterModal')).hide();
-            })
-            .catch(function (error) {
-                if (error.response) {
-                    if (error.response.status === 400) {
-                        const errors = error.response.data;
-                        handleFormErrors(errors);
-                    } else {
-                        console.error('Server Error:', error.response.data);
-                    }
-                } else if (error.request) {
-                    console.error('No response received:', error.request);
+        .catch(function (error) {
+            if (error.response) {
+                if (error.response.status === 400) {
+                    const errors = error.response.data;
+                    handleFormErrors(errors);
                 } else {
-                    console.error('Error:', error.message);
+                    console.error('Server Error:', error.response.data);
                 }
-            });
-    }
+            } else if (error.request) {
+                console.error('No response received:', error.request);
+            } else {
+                console.error('Error:', error.message);
+            }
+        });
+}
 
-    function displayJsonError(errorMessage) {
-        const filterMapContainer = document.getElementById('filterMapContainer');
+function displayJsonError(errorMessage) {
+    const filterMapContainer = document.getElementById('filterMapContainer');
+    const invalidFeedback = document.createElement('div');
+    invalidFeedback.className = 'invalid-feedback d-block';
+    invalidFeedback.textContent = errorMessage;
+    filterMapContainer.appendChild(invalidFeedback);
+}
+
+function handleFormErrors(errors) {
+    Object.keys(errors).forEach(function (fieldName) {
+        const errorMessage = errors[fieldName];
+        const inputField = document.getElementById(`filter${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
+
+        // Add error message
+        inputField.classList.add('is-invalid');
         const invalidFeedback = document.createElement('div');
-        invalidFeedback.className = 'invalid-feedback d-block';
+        invalidFeedback.className = 'invalid-feedback';
         invalidFeedback.textContent = errorMessage;
-        filterMapContainer.appendChild(invalidFeedback);
-    }
+        inputField.parentElement.appendChild(invalidFeedback);
+    });
+}
 
-    function handleFormErrors(errors) {
-        Object.keys(errors).forEach(function (fieldName) {
-            const errorMessage = errors[fieldName];
-            const inputField = document.getElementById(`filter${fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}`);
+function resetFormFields() {
+    document.querySelectorAll('.is-invalid').forEach(function (input) {
+        input.classList.remove('is-invalid');
+        const errorMessage = input.parentElement.querySelector('.invalid-feedback');
+        if (errorMessage) {
+            errorMessage.remove();
+        }
+    });
 
-            // Add error message
-            inputField.classList.add('is-invalid');
-            const invalidFeedback = document.createElement('div');
-            invalidFeedback.className = 'invalid-feedback';
-            invalidFeedback.textContent = errorMessage;
-            inputField.parentElement.appendChild(invalidFeedback);
-        });
-    }
+    // Reset filter map rows
+    const filterMapContainer = document.getElementById('filterMapContainer');
+    filterMapContainer.innerHTML = '';
+    addFilterRow(); // Add an initial row
+}
 
-    function resetFormFields() {
-        document.querySelectorAll('.is-invalid').forEach(function (input) {
-            input.classList.remove('is-invalid');
-            const errorMessage = input.parentElement.querySelector('.invalid-feedback');
-            if (errorMessage) {
-                errorMessage.remove();
-            }
-        });
+function handleModalClose() {
+    resetFormFields();
+}
 
-        // Reset filter map rows
-        const filterMapContainer = document.getElementById('filterMapContainer');
-        filterMapContainer.innerHTML = '';
-        addFilterRow(); // Add an initial row
-    }
 
-    function handleModalClose() {
-        resetFormFields();
-    }
 
-    function addFilterRow(key = '', value = '') {
-        const filterMapContainer = document.getElementById('filterMapContainer');
-        const row = document.createElement('div');
-        row.className = 'row mb-2';
+function addFilterRow(key = '', values = []) {
+    const filterMapContainer = document.getElementById('filterMapContainer');
+    const rowIndex = document.querySelectorAll('.filter-map-row').length;
 
-        row.innerHTML = `
-        <div class="col-5">
-            <input type="text" class="form-control" placeholder="Key" value="${key}">
-        </div>
-        <div class="col-6">
-            <input type="text" class="form-control" placeholder="Value (comma-separated)" value="${value}">
-        </div>
-        <div class="col-1">
-            <button type="button" class="btn btn-danger btn-sm" onclick="removeFilterRow(this)">-</button>
-        </div>
-    `;
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'filter-map-row mb-3';
 
-        filterMapContainer.appendChild(row);
-    }
+    const rowContentDiv = document.createElement('div');
+    rowContentDiv.className = 'd-flex align-items-center mb-2';
 
-    function removeFilterRow(button) {
-        const row = button.closest('.row');
-        row.remove();
-    }
+    const keyInput = document.createElement('input');
+    keyInput.type = 'text';
+    keyInput.className = 'form-control me-2';
+    keyInput.name = `filterMap[${rowIndex}][key]`;
+    keyInput.placeholder = 'Key';
+    keyInput.value = key;
+    rowContentDiv.appendChild(keyInput);
 
-    function parseFilterMap() {
-        const filterMapContainer = document.getElementById('filterMapContainer');
-        const rows = filterMapContainer.querySelectorAll('.row');
-        const filterMap = {};
+    const addValueButton = document.createElement('button');
+    addValueButton.type = 'button';
+    addValueButton.className = 'btn btn-secondary btn-sm me-2';
+    addValueButton.innerHTML = '<i class="fas fa-plus"></i>';
+    addValueButton.onclick = () => addValueInput(valuesContainer);
+    rowContentDiv.appendChild(addValueButton);
 
-        rows.forEach(row => {
-            const key = row.querySelector('input[placeholder="Key"]').value.trim();
-            const value = row.querySelector('input[placeholder="Value (comma-separated)"]').value.trim();
-            if (key && value) {
-                filterMap[key] = value.split(',').map(v => v.trim());
-            }
-        });
+    const removeRowButton = document.createElement('button');
+    removeRowButton.type = 'button';
+    removeRowButton.className = 'btn btn-danger btn-sm';
+    removeRowButton.innerHTML = '<i class="fas fa-trash"></i>';
+    removeRowButton.onclick = () => filterMapContainer.removeChild(rowDiv);
+    rowContentDiv.appendChild(removeRowButton);
 
-        return filterMap;
-    }
+    rowDiv.appendChild(rowContentDiv);
 
-    document.getElementById('showDetailsFilterModal').addEventListener('hidden.bs.modal', handleModalClose);
+    const valuesContainer = document.createElement('div');
+    valuesContainer.className = 'values-container ms-5'; // Indented more for better spacing
+    values.forEach(value => addValueInput(valuesContainer, value));
+    rowDiv.appendChild(valuesContainer);
+
+    filterMapContainer.appendChild(rowDiv);
+}
+
+function addValueInput(container, value = '') {
+    const valueInputWrapper = document.createElement('div');
+    valueInputWrapper.className = 'value-input-wrapper mb-2 d-flex align-items-center';
+
+    const valueInput = document.createElement('input');
+    valueInput.type = 'text';
+    valueInput.className = 'form-control ms-4'; // Indented further
+    valueInput.name = 'value';
+    valueInput.placeholder = 'Value';
+    valueInput.value = value;
+
+    const removeValueButton = document.createElement('button');
+    removeValueButton.type = 'button';
+    removeValueButton.className = 'btn btn-danger btn-sm ms-2';
+    removeValueButton.innerHTML = '<i class="fas fa-trash"></i>';
+    removeValueButton.onclick = () => container.removeChild(valueInputWrapper);
+
+    valueInputWrapper.appendChild(valueInput);
+    valueInputWrapper.appendChild(removeValueButton);
+
+    container.appendChild(valueInputWrapper);
+}
+
+function removeFilterRow(button) {
+    const row = button.closest('.row');
+    row.remove();
+}
+
+function parseFilterMap() {
+    const filterMapContainer = document.getElementById('filterMapContainer');
+    const rows = filterMapContainer.querySelectorAll('.row');
+    const filterMap = {};
+
+    rows.forEach(row => {
+        const key = row.querySelector('input[placeholder="Key"]').value.trim();
+        const value = row.querySelector('input[placeholder="Value (comma-separated)"]').value.trim();
+        if (key && value) {
+            filterMap[key] = value.split(',').map(v => v.trim());
+        }
+    });
+
+    return filterMap;
+}
+
+document.getElementById('showDetailsFilterModal').addEventListener('hidden.bs.modal', handleModalClose);
 </script>
 </body>
 </html>
