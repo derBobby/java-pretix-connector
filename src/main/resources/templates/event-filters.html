@@ -255,15 +255,15 @@ function saveFilter() {
     const action = document.getElementById('filterAction').value;
     const organizer = document.getElementById('filterOrganizer').value;
     const event = document.getElementById('filterEvent').value;
-    let filterMap;
 
     resetFormFields();
 
-    try {
-        filterMap = parseFilterMap();
-    } catch (e) {
-        displayJsonError('Invalid JSON format in Filter Map');
+    parseResult = parseFilterMap();
+    if (parseResult.hasInvalidInput) {
+        displayFilterMapError("Key and Value are required")
         return;
+    } else {
+        console.log('Parsed filter map:', parseResult.filterMap);
     }
 
     const requestData = {
@@ -271,7 +271,7 @@ function saveFilter() {
         action: action,
         organizer: organizer,
         event: event,
-        'qna-list': filterMap
+        'qna-list': parseResult.filterMap
     };
 
     const url = id ? `/api/v1/filter/${id}` : `/api/v1/filter`;
@@ -302,8 +302,14 @@ function saveFilter() {
         });
 }
 
-function displayJsonError(errorMessage) {
+function displayFilterMapError(errorMessage) {
     const filterMapContainer = document.getElementById('filterMapContainer');
+
+    // Remove existing error messages
+    const existingErrors = filterMapContainer.querySelectorAll('.invalid-feedback');
+    existingErrors.forEach(error => error.remove());
+
+    // Add new error message
     const invalidFeedback = document.createElement('div');
     invalidFeedback.className = 'invalid-feedback d-block';
     invalidFeedback.textContent = errorMessage;
@@ -416,20 +422,42 @@ function removeFilterRow(button) {
 
 function parseFilterMap() {
     const filterMapContainer = document.getElementById('filterMapContainer');
+    if (!filterMapContainer) {
+        console.error('filterMapContainer not found');
+        return { filterMap: {}, hasInvalidInput: true };
+    }
+
     const rows = filterMapContainer.querySelectorAll('.filter-map-row');
     const filterMap = {};
+    let hasInvalidInput = false;
 
     rows.forEach(row => {
         const keyInput = row.querySelector('input[name^="filterMap["][name$="][key]"]');
+        if (!keyInput) {
+            console.error('Key input not found in row', row);
+            hasInvalidInput = true;
+            return;
+        }
+
         const valueInputs = row.querySelectorAll('.value-input-wrapper input[name="value"]');
+        if (valueInputs.length === 0) {
+            console.warn('No value inputs found in row', row);
+            hasInvalidInput = true;
+            return;
+        }
+
         const key = keyInput.value.trim();
         const values = Array.from(valueInputs).map(input => input.value.trim());
-        if (key && values.length > 0) {
-            filterMap[key] = values;
+
+        if (!key || values.some(value => !value)) {
+            hasInvalidInput = true;
+            return;
         }
+
+        filterMap[key] = values;
     });
 
-    return filterMap;
+    return { filterMap, hasInvalidInput };
 }
 
 document.getElementById('detailsFilterModal').addEventListener('hidden.bs.modal', handleModalClose);
