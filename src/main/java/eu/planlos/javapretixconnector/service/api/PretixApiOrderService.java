@@ -20,6 +20,8 @@ import java.util.List;
 @Service
 public class PretixApiOrderService extends PretixApiService {
 
+    //TODO Conditional Fetching - https://docs.pretix.eu/en/latest/api/fundamentals.html#conditional-fetching
+
     private static final String FETCH_MESSAGE = "Fetched order from Pretix: {}";
 
     public PretixApiOrderService(PretixApiConfig config, @Qualifier("PretixWebClient") WebClient webClient) {
