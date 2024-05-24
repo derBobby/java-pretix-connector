@@ -152,6 +152,10 @@ function fetchEventFilters() {
         });
 }
 
+/*
+ * Delete Modal
+ */
+
 function showDeleteConfirmation(id) {
     document.getElementById('deleteConfirmationId').value = id;
     new bootstrap.Modal(document.getElementById('deleteConfirmationModal')).show();
@@ -170,6 +174,10 @@ function confirmDelete() {
             console.error('Error deleting filter:', error);
         });
 }
+
+/*
+ * Show, update, create Modal
+ */
 
 function openModal(id, mode) {
     if (id) {
@@ -413,11 +421,6 @@ function addValueInput(container, value = '') {
     valueInputWrapper.appendChild(removeValueButton);
 
     container.appendChild(valueInputWrapper);
-}
-
-function removeFilterRow(button) {
-    const row = button.closest('.row');
-    row.remove();
 }
 
 function parseFilterMap() {
