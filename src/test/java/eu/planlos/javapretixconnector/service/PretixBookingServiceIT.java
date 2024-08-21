@@ -25,7 +25,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -68,7 +68,7 @@ class PretixBookingServiceIT {
     @Test
     public void duplicatedWebHook_fetchedOnlyOnce() {
 
-        OrderDTO orderDTO = new OrderDTO(CODE_NEW, new InvoiceAddressDTO("name", new NamePartsDTO("first", "last")), "mail@example.com", ZonedDateTimeUtility.nowCET().toLocalDateTime(), List.of(new PositionDTO("Name", 1L, 1L, Collections.emptyList())));
+        OrderDTO orderDTO = new OrderDTO(CODE_NEW, new InvoiceAddressDTO("name", new NamePartsDTO("first", "last")), "mail@example.com", ZonedDateTimeUtility.nowCET(), List.of(new PositionDTO("Name", 1L, 1L, Collections.emptyList())));
         when(pretixApiOrderService.fetchOrderFromPretix(any(), any())).thenReturn(orderDTO);
         when(productService.loadOrFetchProduct(any(), any(), any())).then(x -> {
             ProductType productType = productTypeRepository.save(new ProductType(new PretixId(1L), false, "Type"));
@@ -83,8 +83,8 @@ class PretixBookingServiceIT {
 
     @Test
     public void saveDuplicate_fails() {
-        Booking first = new Booking(CODE_NEW, ORGANIZER, EVENT, "firstname", "lastname", "email@example.com", LocalDateTime.now(), Collections.emptyList());
-        Booking second = new Booking(CODE_NEW, ORGANIZER, EVENT, "firstname", "lastname", "email@example.com", LocalDateTime.now(), Collections.emptyList());
+        Booking first = new Booking(CODE_NEW, ORGANIZER, EVENT, "firstname", "lastname", "email@example.com", ZonedDateTime.now(), Collections.emptyList());
+        Booking second = new Booking(CODE_NEW, ORGANIZER, EVENT, "firstname", "lastname", "email@example.com", ZonedDateTime.now(), Collections.emptyList());
 
         bookingRepository.saveAndFlush(first);
         assertThrows(DataIntegrityViolationException.class, () -> bookingRepository.saveAndFlush(second));

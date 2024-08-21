@@ -179,7 +179,7 @@ public class PretixTestDataUtility {
                 "First",
                 "Last",
                 "first.last@example.com",
-                ZonedDateTimeUtility.nowCET().toLocalDateTime(),
+                ZonedDateTimeUtility.nowCET(),
                 ticketPositionList());
     }
 
@@ -191,7 +191,7 @@ public class PretixTestDataUtility {
                 "First",
                 "Last",
                 "first.last@example.com",
-                ZonedDateTimeUtility.nowCET().toLocalDateTime(),
+                ZonedDateTimeUtility.nowCET(),
                 addonPositionList());
     }
 
@@ -203,7 +203,7 @@ public class PretixTestDataUtility {
                 "First",
                 "Last",
                 "first.last@example.com",
-                ZonedDateTimeUtility.nowCET().toLocalDateTime(),
+                ZonedDateTimeUtility.nowCET(),
                 Collections.emptyList());
     }
 

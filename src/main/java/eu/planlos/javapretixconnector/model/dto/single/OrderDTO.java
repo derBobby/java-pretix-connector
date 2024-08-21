@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Data
@@ -23,12 +23,12 @@ public final class OrderDTO {
     private String email;
 
     @NotNull
-    private LocalDateTime expires;
+    private ZonedDateTime expires;
 
     @NotNull
     private List<PositionDTO> positions;
 
-    public OrderDTO(@NotNull String code, @NotNull InvoiceAddressDTO invoice_address, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<PositionDTO> positions) {
+    public OrderDTO(@NotNull String code, @NotNull InvoiceAddressDTO invoice_address, @NotNull String email, @NotNull ZonedDateTime expires, @NotNull List<PositionDTO> positions) {
         this.code = code;
         this.invoice_address = invoice_address;
         this.email = email;
