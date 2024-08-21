@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -28,8 +28,8 @@ class BookingRepositoryIT {
 
     @Test
     public void insertDuplicate_throwsException() {
-        Booking firstBooking = new Booking("only organizer", "first event", "XC0DE", "Firstname", "Lastname", "email@example.com", LocalDateTime.now(), new ArrayList<>());
-        Booking secondBooking = new Booking("only organizer", "second event", "XC0DE", "Firstname", "Lastname", "email@example.com", LocalDateTime.now(), new ArrayList<>());
+        Booking firstBooking = new Booking("only organizer", "first event", "XC0DE", "Firstname", "Lastname", "email@example.com", ZonedDateTime.now(), new ArrayList<>());
+        Booking secondBooking = new Booking("only organizer", "second event", "XC0DE", "Firstname", "Lastname", "email@example.com", ZonedDateTime.now(), new ArrayList<>());
 
         bookingRepository.saveAndFlush(firstBooking);
         assertThrows(DataIntegrityViolationException.class, () -> bookingRepository.saveAndFlush(secondBooking));

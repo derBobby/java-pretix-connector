@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Entity
@@ -40,14 +40,14 @@ public final class Booking {
     private String email;
 
     @NotNull
-    private LocalDateTime expires;
+    private ZonedDateTime expires;
 
     @NotNull
     @OneToMany(cascade = CascadeType.ALL)
     @ToString.Exclude
     private List<Position> positionList;
 
-    public Booking(@NotNull String code, @NotNull String organizer, @NotNull String event, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull LocalDateTime expires, @NotNull List<Position> positionList) {
+    public Booking(@NotNull String code, @NotNull String organizer, @NotNull String event, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull ZonedDateTime expires, @NotNull List<Position> positionList) {
         this.code = code;
         this.organizer = organizer;
         this.event = event;

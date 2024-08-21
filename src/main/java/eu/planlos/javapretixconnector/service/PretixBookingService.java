@@ -46,6 +46,10 @@ public class PretixBookingService implements IPretixBookingService {
         return fetchFromPretix(organizer, event, code);
     }
 
+    public List<Booking> loadAllLocal() {
+        return bookingRepository.findAll();
+    }
+
     private Booking fetchFromPretix(String organizer, String event, String code) {
         OrderDTO orderDTO = pretixApiOrderService.fetchOrderFromPretix(event, code);
         Booking booking = convert(organizer, event, orderDTO);
