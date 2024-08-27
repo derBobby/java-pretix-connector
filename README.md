@@ -94,3 +94,29 @@ class YourClass {
             // your code
 }   }   }
 ```
+
+# Snippets
+
+## Create filter
+
+```curl
+curl -X POST http://localhost:8080/api/v1/filter \
+    -u <user>:<password> \
+    -H "Content-Type: application/json" \
+    -d '{
+          "action": "...",
+          "organizer": "...",
+          "event": "...",
+          "qna-list": {
+            "question1": ["...", "..."],
+            "question2": ["..."]
+          }
+        }'
+```
+
+## Delete filter
+
+```curl
+curl -X DELETE http://localhost:8080/api/v1/filter/{id} \
+    -u <user>:<password>
+```
