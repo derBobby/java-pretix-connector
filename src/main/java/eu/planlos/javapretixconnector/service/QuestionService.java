@@ -44,6 +44,7 @@ public class QuestionService {
     public void fetchAll(String event) {
         List<QuestionDTO> questionsDTOList = pretixApiQuestionService.queryAllQuestions(event);
         List<Question> questionList = questionsDTOList.stream().map(this::convert).collect(Collectors.toList());
+        questionRepository.deleteAll();
         questionRepository.saveAll(questionList);
     }
 

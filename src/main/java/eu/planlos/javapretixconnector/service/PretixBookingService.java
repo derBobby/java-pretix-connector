@@ -1,7 +1,6 @@
 package eu.planlos.javapretixconnector.service;
 
 import eu.planlos.javapretixconnector.model.*;
-import eu.planlos.javapretixconnector.model.Item;
 import eu.planlos.javapretixconnector.model.dto.single.OrderDTO;
 import eu.planlos.javapretixconnector.repository.BookingRepository;
 import eu.planlos.javapretixconnector.service.api.PretixApiOrderService;
@@ -60,6 +59,7 @@ public class PretixBookingService implements IPretixBookingService {
     public void fetchAll(String organizer, String event) {
         List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders(event);
         List<Booking> bookingList = orderDTOList.stream().map(orderDTO -> convert(organizer, event, orderDTO)).collect(Collectors.toList());
+        bookingRepository.deleteAll();
         bookingRepository.saveAll(bookingList);
     }
 
