@@ -8,4 +8,6 @@ public interface IPretixBookingService {
     void fetchAll(String organizer, String event);
 
     String getOrderUrl(String event, String orderCode);
+
+    void deleteAll();
 }

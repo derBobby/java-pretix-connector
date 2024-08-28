@@ -48,17 +48,24 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
             return;
         }
 
+        logSeparator("Deleting order related data");
+        emptyDatabase();
         logSeparator("Starting Preload");
-
         pretixApiEventService.fetchAllEvents()
                 .stream()
                 .filter(EventDTO::live)
-                .forEach(eventDTO -> preload(pretixApiConfig.organizer(), eventDTO.slug()));
+                .forEach(eventDTO -> preload(eventDTO.slug()));
 
         logSeparator("Preload complete");
     }
 
-    private void preload(String organizer, String eventSlug) {
+    private void emptyDatabase() {
+        pretixBookingService.deleteAll();
+        questionService.deleteAll();
+        productService.deleteAll();
+    }
+
+    private void preload(String eventSlug) {
 
         log.info("   Preloading event={}", eventSlug);
 
@@ -66,7 +73,7 @@ public class PreloadPretixDataRunner implements ApplicationRunner {
         productService.fetchAll(eventSlug);
         if(pretixFeatureConfig.preloadOrdersEnabled()) {
             log.info("   Preloading orders for event={}", eventSlug);
-            pretixBookingService.fetchAll(organizer, eventSlug);
+            pretixBookingService.fetchAll(pretixApiConfig.organizer(), eventSlug);
         }
     }
 

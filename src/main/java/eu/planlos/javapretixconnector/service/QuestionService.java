@@ -44,7 +44,6 @@ public class QuestionService {
     public void fetchAll(String event) {
         List<QuestionDTO> questionsDTOList = pretixApiQuestionService.queryAllQuestions(event);
         List<Question> questionList = questionsDTOList.stream().map(this::convert).collect(Collectors.toList());
-        questionRepository.deleteAll();
         questionRepository.saveAll(questionList);
     }
 
@@ -74,6 +73,11 @@ public class QuestionService {
         Map<Question, Answer> QnAmap = new HashMap<>();
         answerList.forEach(answer -> QnAmap.put(loadOrFetch(event, answer.getPretixId()), answer));
         return QnAmap;
+    }
+
+    public void deleteAll() {
+        log.info("Deleting question data");
+        questionRepository.deleteAll();
     }
 }
 

@@ -31,10 +31,10 @@ public class PretixBookingService implements IPretixBookingService {
     }
 
     @Override
-    public Booking loadOrFetch(String organizer, String event, String code) {
+    public Booking loadOrFetch(String organizer, String eventSlug, String code) {
 
         // Get from DB
-        Optional<Booking> optionalBooking = bookingRepository.findByOrganizerAndEventAndCode(organizer, event, code);
+        Optional<Booking> optionalBooking = bookingRepository.findByOrganizerAndEventAndCode(organizer, eventSlug, code);
         if(optionalBooking.isPresent()) {
             Booking booking = optionalBooking.get();
             log.info("Loaded booking from db: {}", booking);
@@ -42,30 +42,35 @@ public class PretixBookingService implements IPretixBookingService {
         }
 
         // or fetch from Pretix
-        return fetchFromPretix(organizer, event, code);
+        return fetchFromPretix(organizer, eventSlug, code);
     }
 
     public List<Booking> loadAllLocal() {
         return bookingRepository.findAll();
     }
 
-    private Booking fetchFromPretix(String organizer, String event, String code) {
-        OrderDTO orderDTO = pretixApiOrderService.fetchOrderFromPretix(event, code);
-        Booking booking = convert(organizer, event, orderDTO);
+    private Booking fetchFromPretix(String organizer, String eventSlug, String code) {
+        OrderDTO orderDTO = pretixApiOrderService.fetchOrderFromPretix(eventSlug, code);
+        Booking booking = convert(organizer, eventSlug, orderDTO);
         return bookingRepository.save(booking);
     }
 
     @Override
-    public void fetchAll(String organizer, String event) {
-        List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders(event);
-        List<Booking> bookingList = orderDTOList.stream().map(orderDTO -> convert(organizer, event, orderDTO)).collect(Collectors.toList());
-        bookingRepository.deleteAll();
+    public void fetchAll(String organizer, String eventSlug) {
+        List<OrderDTO> orderDTOList = pretixApiOrderService.fetchAllOrders(eventSlug);
+        List<Booking> bookingList = orderDTOList.stream().map(orderDTO -> convert(organizer, eventSlug, orderDTO)).collect(Collectors.toList());
         bookingRepository.saveAll(bookingList);
     }
 
     @Override
     public String getOrderUrl(String event, String orderCode) {
         return pretixApiOrderService.getEventUrl(event, orderCode);
+    }
+
+    @Override
+    public void deleteAll() {
+        log.info("Deleting booking data");
+        bookingRepository.deleteAll();
     }
 
     private Booking convert(String organizer, String event, OrderDTO orderDTO) {

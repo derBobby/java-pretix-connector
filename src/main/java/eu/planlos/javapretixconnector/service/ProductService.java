@@ -46,7 +46,6 @@ public class ProductService {
     private void fetchAllProductTypes(String event) {
         List<ItemCategoryDTO> itemCategoryDTOList = pretixApiItemCategoryService.queryAllItemCategories(event);
         List<ProductType> productTypeList = itemCategoryDTOList.stream().map(this::convert).toList();
-        productTypeRepository.deleteAll();
         productTypeRepository.saveAll(productTypeList);
     }
 
@@ -57,7 +56,6 @@ public class ProductService {
     }
 
     private void fetchAllProducts(String event) {
-        productRepository.deleteAll();
         List<ItemDTO> itemDTOList = pretixApiItemService.queryAllItems(event);
         List<Product> productList = itemDTOList.stream().map(itemDTO -> convert(event, itemDTO)).flatMap(List::stream).toList();
         saveProducts(productList);
@@ -154,5 +152,12 @@ public class ProductService {
             String fullName = String.join(" - ", baseName, itemVariationDTO.getName());
             return new Product(new PretixId(itemDTO.id()), new PretixId(itemVariationDTO.id()), fullName, productType);
         }).toList();
+    }
+
+    public void deleteAll() {
+        log.info("Deleting product data");
+        productRepository.deleteAll();
+        log.info("Deleting product type data");
+        productTypeRepository.deleteAll();
     }
 }
