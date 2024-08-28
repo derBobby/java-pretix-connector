@@ -1,7 +1,7 @@
 package eu.planlos.javapretixconnector.service;
 
 import eu.planlos.javapretixconnector.model.*;
-import eu.planlos.javapretixconnector.model.Position;
+import eu.planlos.javapretixconnector.model.Item;
 import eu.planlos.javapretixconnector.model.dto.single.OrderDTO;
 import eu.planlos.javapretixconnector.repository.BookingRepository;
 import eu.planlos.javapretixconnector.service.api.PretixApiOrderService;
@@ -70,15 +70,15 @@ public class PretixBookingService implements IPretixBookingService {
 
     private Booking convert(String organizer, String event, OrderDTO orderDTO) {
 
-        List<Position> positionList = new ArrayList<>();
+        List<Item> itemList = new ArrayList<>();
 
         orderDTO.getPositions().forEach(positionDTO -> {
             Product product = productService.loadOrFetchProduct(event, new PretixId(positionDTO.item()), new PretixId(positionDTO.variation()));
             Map <Question, Answer> QnAmap = questionService.generateQuestionAnswerMap(event, positionDTO.answers().stream().map(questionService::convert).toList());
 
-            positionList.add(new Position(product, QnAmap));
+            itemList.add(new Item(product, QnAmap));
         });
 
-        return new Booking(orderDTO.getCode(), organizer, event, orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), positionList);
+        return new Booking(orderDTO.getCode(), organizer, event, orderDTO.getFirstName(), orderDTO.getLastName(), orderDTO.getEmail(), orderDTO.getExpires(), itemList);
     }
 }

@@ -119,16 +119,16 @@ public class PretixEventFilterService {
      * @return true if there is no  filter at all, that wants the booking
      */
     public boolean bookingNotWantedByAnyFilter(PretixSupportedActions action, Booking booking) {
-        List<Position> ticketPositionList = booking.getPositionList().stream()
+        List<Item> ticketItemList = booking.getItemList().stream()
                 .filter(this::noAddon)
-                .filter(position -> matchesEventFilter(action.getAction(), booking.getOrganizer(), booking.getEvent(), position.getQnA()))
+                .filter(item -> matchesEventFilter(action.getAction(), booking.getOrganizer(), booking.getEvent(), item.getQnA()))
                 .toList();
-        return ticketPositionList.isEmpty();
+        return ticketItemList.isEmpty();
     }
 
-    private boolean noAddon(Position position) {
-        boolean isAddon = position.getProduct().getProductType().isAddon();
-        log.debug("{} isAddon={}", position, isAddon);
+    private boolean noAddon(Item item) {
+        boolean isAddon = item.getProduct().getProductType().isAddon();
+        log.debug("{} isAddon={}", item, isAddon);
         return !isAddon;
     }
 

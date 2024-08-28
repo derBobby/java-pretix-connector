@@ -12,7 +12,7 @@ import java.util.Map;
 @Getter
 @ToString
 @NoArgsConstructor
-public class Position {
+public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -25,7 +25,7 @@ public class Position {
     @ManyToOne
     private Product product;
 
-    public Position(@NotNull Product product, @NotNull Map<Question, Answer> qnA) {
+    public Item(@NotNull Product product, @NotNull Map<Question, Answer> qnA) {
         this.product = product;
         QnA = qnA;
     }

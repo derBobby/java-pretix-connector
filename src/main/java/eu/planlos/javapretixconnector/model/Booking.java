@@ -45,9 +45,9 @@ public final class Booking {
     @NotNull
     @OneToMany(cascade = CascadeType.ALL)
     @ToString.Exclude
-    private List<Position> positionList;
+    private List<Item> itemList;
 
-    public Booking(@NotNull String code, @NotNull String organizer, @NotNull String event, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull ZonedDateTime expires, @NotNull List<Position> positionList) {
+    public Booking(@NotNull String code, @NotNull String organizer, @NotNull String event, @NotNull String firstname, @NotNull String lastname, @NotNull String email, @NotNull ZonedDateTime expires, @NotNull List<Item> itemList) {
         this.code = code;
         this.organizer = organizer;
         this.event = event;
@@ -55,6 +55,6 @@ public final class Booking {
         this.lastname = lastname;
         this.email = email;
         this.expires = expires;
-        this.positionList = positionList;
+        this.itemList = itemList;
     }
 }
