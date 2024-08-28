@@ -105,8 +105,8 @@ public class PretixEventFilterServiceIT {
     }
 
     @Test
-    public void noPositionBooking_doesntMatchFilter() {
-        assertTrue(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED, noPositionsBooking()));
+    public void noItemBooking_doesntMatchFilter() {
+        assertTrue(pretixEventFilterService.bookingNotWantedByAnyFilter(ORDER_APPROVED, noItemsBooking()));
     }
 
     /*

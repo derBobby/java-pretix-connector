@@ -180,7 +180,7 @@ public class PretixTestDataUtility {
                 "Last",
                 "first.last@example.com",
                 ZonedDateTimeUtility.nowCET(),
-                ticketPositionList());
+                ticketItemList());
     }
 
     public static Booking addonBooking() {
@@ -192,10 +192,10 @@ public class PretixTestDataUtility {
                 "Last",
                 "first.last@example.com",
                 ZonedDateTimeUtility.nowCET(),
-                addonPositionList());
+                addonItemList());
     }
 
-    public static Booking noPositionsBooking() {
+    public static Booking noItemsBooking() {
         return new Booking(
                 ORGANIZER,
                 EVENT,
@@ -207,12 +207,12 @@ public class PretixTestDataUtility {
                 Collections.emptyList());
     }
 
-    private static List<Position> ticketPositionList() {
-        return List.of(new Position(ticketProduct(), correctQnaMap()));
+    private static List<Item> ticketItemList() {
+        return List.of(new Item(ticketProduct(), correctQnaMap()));
     }
 
-    private static List<Position> addonPositionList() {
-        return List.of(new Position(addonProduct(), correctQnaMap()));
+    private static List<Item> addonItemList() {
+        return List.of(new Item(addonProduct(), correctQnaMap()));
     }
 
     private static Product ticketProduct() {
