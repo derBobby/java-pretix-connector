@@ -20,7 +20,6 @@ public final class Answer {
     private PretixId pretixId;
 
     @NotNull
-    @Lob
     @Column(columnDefinition="LONGTEXT")
     private String text;
 
