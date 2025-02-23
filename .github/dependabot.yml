@@ -13,6 +13,8 @@ registries:
   maven-github:
     type: maven-repository
     url: https://maven.pkg.github.com/derBobby
+    username: derBobby
+    token: ${{secrets.REPO_PACKAGES_PAT}}
 
 updates:
 
