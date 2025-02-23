@@ -6,7 +6,6 @@
 version: 2
 
 registries:
-
   maven-central:
     type: maven-repository
     url: https://repo.maven.apache.org/maven2
